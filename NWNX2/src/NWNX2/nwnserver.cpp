@@ -22,10 +22,10 @@
 #include "shellapi.h"
 #include <conio.h>
 #include <windows.h>
-#include "madCHook.h"
 #include "nwnserver.h"
+#include <tchar.h>
 
-STARTUPINFO si;
+STARTUPINFOW si;
 PROCESS_INFORMATION pi;
 char logDir[8] = {0};
 
@@ -46,7 +46,7 @@ char* GetLogDir()
 			strcat(tmpFileName, tmpNo);
 			strcat(tmpFileName, "\\nwserverlog1.txt");
 
-			outFile = CreateFile(
+			outFile = CreateFileA(
 			tmpFileName,						// pointer to name of the file
 			GENERIC_READ | GENERIC_WRITE,       // access (read-write) mode
 			0,									// exclusive mode
@@ -83,7 +83,7 @@ void RotateLogs()
 	if (strlen(GetLogDir()) == 0)
 		return;
 
-	GetCurrentDirectory(256, baseDirName);
+	GetCurrentDirectoryA(256, baseDirName);
 	strcat(baseDirName, "\\");
 	strcat(baseDirName, GetLogDir());
 	strcat(baseDirName, "\\");
@@ -92,7 +92,7 @@ void RotateLogs()
 	strcpy(oldDirName, baseDirName);
 	strcat(oldDirName, "9");
 
-	SHFILEOPSTRUCT fileOp;
+	SHFILEOPSTRUCTA fileOp;
 	fileOp.hwnd = 0;
 	fileOp.wFunc = FO_DELETE;
 	fileOp.pFrom = oldDirName;
@@ -102,7 +102,7 @@ void RotateLogs()
     fileOp.hNameMappings = NULL;
     fileOp.lpszProgressTitle = NULL;
 
-	SHFileOperation(&fileOp);
+	SHFileOperationA(&fileOp);
 
 	// Age directories 1-8
 	for (oldDirNo = 99; oldDirNo > 0; oldDirNo--)
@@ -113,47 +113,118 @@ void RotateLogs()
 		strcpy(newDirName, baseDirName);
 		itoa(oldDirNo + 1, tmpNo, 10);
 		strcat(newDirName, tmpNo);
-		MoveFile(oldDirName, newDirName);
+		MoveFileA(oldDirName, newDirName);
 	}
 
 	// Create youngest directory '1'
-	CreateDirectory(oldDirName, NULL);
+	CreateDirectoryA(oldDirName, NULL);
 
 	// Move current log files to '1'
 	strcpy(oldDirName, baseDirName);
 	strcat(oldDirName, "nwnx.txt");
 	strcpy(newDirName, baseDirName);
 	strcat(newDirName, "1\\nwnx.txt");
-	MoveFile(oldDirName, newDirName);
+	MoveFileA(oldDirName, newDirName);
 	strcpy(oldDirName, baseDirName);
 	strcat(oldDirName, "nwserverlog1.txt");
 	strcpy(newDirName, baseDirName);
 	strcat(newDirName, "1\\nwserverlog1.txt");
-	MoveFile(oldDirName, newDirName);
+	MoveFileA(oldDirName, newDirName);
 	strcpy(oldDirName, baseDirName);
 	strcat(oldDirName, "nwserverError1.txt");
 	strcpy(newDirName, baseDirName);
 	strcat(newDirName, "1\\nwserverError1.txt");
-	MoveFile(oldDirName, newDirName);
+	MoveFileA(oldDirName, newDirName);
 
 	strcpy(oldDirName, baseDirName);
 	strcat(oldDirName, "nwnx_odbc.txt");
 	strcpy(newDirName, baseDirName);
 	strcat(newDirName, "1\\nwnx_odbc.txt");
-	MoveFile(oldDirName, newDirName);
+	MoveFileA(oldDirName, newDirName);
 }
 
-void StartServerProcess(LPTSTR cl, STARTUPINFO* si, PROCESS_INFORMATION* pi)
+void StartServerProcess(char  *cl, STARTUPINFOW* si, PROCESS_INFORMATION* pi)
 {
-	CreateProcessEx("nwserver.exe", cl, NULL, NULL,FALSE, NORMAL_PRIORITY_CLASS, NULL, NULL, si, pi, "nwnx-module.dll");
+	void *address;
+	WCHAR dllPath[MAX_PATH];
+	WCHAR WDFixed[MAX_PATH];
+	WCHAR wappendage[20];
+	WCHAR server_cast[14];
+	WCHAR cl_cast[300];
+	WCHAR kernel_cast[14];
+	char *appendage = "\\nwnx-module.dll";
+	char *server_name = "nwserver.exe";
+	char *kernel_name = "Kernel32.dll";
+	unsigned long numBytes, exitCode;
+	HANDLE thandle;
+
+	char debuggy[256];
+
+	GetCurrentDirectoryW(sizeof(WCHAR) * MAX_PATH, dllPath);
+	GetCurrentDirectoryW(sizeof(WCHAR) * MAX_PATH, WDFixed);
+	MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, appendage, -1, wappendage, strlen(appendage) + 1);
+	wcscat(dllPath, wappendage );
+
+	
+	MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, server_name, -1, server_cast, strlen(server_name) + 1);
+	MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, cl, -1, cl_cast, strlen(cl) + 1);
+	MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, kernel_name, -1, kernel_cast, strlen(kernel_name) + 1);
+
+	CreateProcessW(server_cast, cl_cast , NULL, NULL, FALSE, 
+		            CREATE_SUSPENDED | CREATE_PRESERVE_CODE_AUTHZ_LEVEL, NULL, WDFixed, si, pi);
+
+	// Get permission to write into the process's address space of a space about the length of the path/DLL name.
+	address = VirtualAllocEx(pi->hProcess, NULL, sizeof(WCHAR)*wcsnlen(dllPath, MAX_PATH) + sizeof(WCHAR), 
+						MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+	if(!address) {
+		MessageBoxA(NULL, "Can't start server process; there was a memory access issue.  Does NWNX2 have the permissions it needs to run?", "Error", MB_TASKMODAL | MB_TOPMOST | MB_ICONERROR | MB_OK);
+		return;
+	}
+
+	// Write the DLL name into the process's address space
+	if(!WriteProcessMemory(pi->hProcess, address, (const void *) dllPath,  sizeof(WCHAR)*wcsnlen(dllPath, MAX_PATH) + sizeof(WCHAR), &numBytes)) {
+		MessageBoxA(NULL, "Can't start server process; The write to memory failed.", "Error", MB_TASKMODAL | MB_TOPMOST | MB_ICONERROR | MB_OK);
+		return;
+	}
+
+	// Force the process to load the DLL by creating a thread inside the process that calls LoadLibrary and exits.
+	thandle = CreateRemoteThread(pi->hProcess, NULL, 0, (LPTHREAD_START_ROUTINE) GetProcAddress(LoadLibraryW(kernel_cast), "LoadLibraryW"), address, 0, NULL);
+
+	// Let's check if the thread ran ok-
+	if(!GetExitCodeThread(thandle, &exitCode) || thandle == NULL) {
+		MessageBoxA(NULL, "Can't start server process; The loading thread in nwserver failed to run.", "Error", MB_TASKMODAL | MB_TOPMOST | MB_ICONERROR | MB_OK);
+		return;		
+	}
+
+	// 259 is still running
+	while(exitCode == 259) {
+		GetExitCodeThread(thandle, &exitCode);
+	}
+
+	// Let's check how LoadLibrary() exited
+	if(!exitCode) {
+		exitCode = GetLastError();
+	// don't do this normally...
+		sprintf(debuggy, "%d", exitCode);
+		MessageBoxA(NULL, debuggy, "Error", MB_TASKMODAL | MB_TOPMOST | MB_ICONERROR | MB_OK);
+		//MessageBoxA(NULL, "Can't start server process; nwnx-module.dll failed to load into nwserver.exe", "Error", MB_TASKMODAL | MB_TOPMOST | MB_ICONERROR | MB_OK);
+		return;		
+	}
+
+
+
+	// All good to go, let's kick the football-
+	if(!ResumeThread(pi->hThread)) {
+		MessageBoxA(NULL, "There was a threading problem, possibly a bad handle.", "Error", MB_TASKMODAL | MB_TOPMOST | MB_ICONERROR | MB_OK);
+	}
+
 }
 
 void StartAndInject(char* cl)
 {
-	ZeroMemory(&si,sizeof(si));
-	si.cb = sizeof(si);
-
+	GetStartupInfoW(&si);
 	RotateLogs();
+
 	StartServerProcess(cl, &si, &pi);
 }
 

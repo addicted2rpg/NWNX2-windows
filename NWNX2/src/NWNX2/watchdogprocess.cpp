@@ -79,6 +79,9 @@ DWORD WINAPI watchdogProcessThread(LPVOID lpParam)
 
 void CWatchdogProcess::StartThread()
 {
+	
+
+
 	if (!WatchdogThreadData.threadRunning)
 	{
 		WatchdogThreadData.threadRunning = true;

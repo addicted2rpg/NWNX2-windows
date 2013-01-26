@@ -15,7 +15,7 @@ public:
         // Save local copy of the command line string, because
         // ParseCmdLine() modifies this string while parsing it.
 		unsigned int iSize;
-        PSZ cmdline = GetCommandLine();
+        PSZ cmdline = GetCommandLineA();
 		iSize = strlen(cmdline);
         m_cmdline = new char [iSize + 2];
         if (m_cmdline)

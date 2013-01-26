@@ -20,6 +20,7 @@
 
 #include "stdafx.h"
 #include "NWNX2.h"
+#include "NWNXshared.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -28,6 +29,8 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 #include <string>
+
+
 
 /////////////////////////////////////////////////////////////////////////////
 // CNWNX2App
@@ -108,6 +111,9 @@ void CNWNX2App::parseIniFile()
 	dlg.m_intGamespyRetries = iniFile.ReadInteger("NWNX", "GamespyRetries", 5);
 	dlg.m_boolOldGamespyProtocol = iniFile.ReadBool("NWNX", "OldGamespyProtocol", false);
 	dlg.m_intRestartDelay = iniFile.ReadInteger("NWNX", "RestartDelay", 5);
+
+	iniFile.ReadString("NWNX", "ListingService", buffer, 256, DEFAULT_LISTING_SERVICE);
+	dlg.m_customListingService = buffer;
 }
 
 void CNWNX2App::parseNWNCmdLine()
@@ -190,6 +196,6 @@ void CNWNX2App::parseNWNCmdLine()
 	if (dlg.m_strModuleName != "")
 	{
 		strcat(cmdline, " -module ");
-		strcat(cmdline, dlg.m_strModuleName);
+		strcat(cmdline, CStringA(dlg.m_strModuleName));
 	}
 }

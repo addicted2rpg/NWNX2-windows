@@ -1,6 +1,14 @@
-NWNX Core 2.7-beta4
+NWNX Core 2.71-alpha
 
 Changelog:
+2.71-alpha (01.26.2013)
+- Removed madChook library and DLL dependencies
+- New server registration system
+- Added optional line support to NWNX.INI file:
+		ListingService = "service"
+		Currently defaults to "nwn1.mst.valhallalegends.com"
+
+
 2.7-beta4 (07.05.2008)
 - [Linux/Win32] Fixed compatibility problems with Hashset plugin
 

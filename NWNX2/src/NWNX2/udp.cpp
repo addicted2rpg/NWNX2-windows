@@ -36,7 +36,7 @@ CUDP::CUDP(char *szAddress, int port)
 	// Error?
 	if(s == SOCKET_ERROR)
 	{
-		MessageBox(NULL, "Error while creating UDP socket.", "NWNX2 Watchdog", NULL);
+		MessageBoxA(NULL, "Error while creating UDP socket.", "NWNX2 Watchdog", NULL);
 		return;
 	}
 
@@ -71,7 +71,7 @@ void CUDP::setAddress(char *szAddress)
 		host = gethostbyname(szAddress);	// Get the IP address of the server and store it in host
 		if(host == NULL)
 		{
-			MessageBox(NULL, "Unknown host.", "NWNX2 Watchdog", NULL);
+			MessageBoxA(NULL, "Unknown host.", "NWNX2 Watchdog", NULL);
 			return;
 		}
 		memcpy(&addr.sin_addr, host->h_addr_list[0], host->h_length);

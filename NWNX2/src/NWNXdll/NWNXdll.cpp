@@ -33,12 +33,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <windows.h>
+#include <Winsock2.h>
 #include "string.h"
-#include "madCHook.h"
 
 #include "NWNXBase.h"
 #include "IniFile.h"
 #include "HashTable.h"
+#include "..\NWNX2\NWNXShared.h"
+
+#pragma comment(lib, "Ws2_32.lib")
+
 
 typedef CNWNXBase* (WINAPI* GETCLASSOBJECT)();
 GETCLASSOBJECT GetClassObject = NULL;
@@ -47,6 +51,7 @@ FILE *logFile;
 char logDir[8] = {0};
 char logFileName[18] = {0};
 int debuglevel = 0;
+char new_masterserver[256];
 
 bool ObjRet = 0;
 unsigned long oRes;
@@ -62,6 +67,116 @@ void (*SetLocalStringNextHook)();
 void (*GetLocalObjectNextHook)();
 BOOL APIENTRY DllMain(HANDLE, DWORD, LPVOID);
 char* GetLogDir();
+
+
+struct hostent *gethostbynameProc(const char *name);
+void *gethostbynameOriginal = gethostbyname;
+
+
+
+int JmpTo(void *MemoryBuffer, void *JumpDestination)
+{
+	unsigned long OldProtection;
+	unsigned char *DestinationMemory = (unsigned char *) MemoryBuffer;
+
+	
+	if (!VirtualProtect(MemoryBuffer, 5, PAGE_EXECUTE_READWRITE, &OldProtection))
+		return 0;
+
+	// Place a jump code to an allocated place on the heap
+	*DestinationMemory = 0xE9;
+	DestinationMemory++;
+	*((unsigned long *) DestinationMemory) = (((unsigned char *) JumpDestination) - DestinationMemory - 4);
+
+	if (!VirtualProtect(MemoryBuffer, 5, OldProtection, &OldProtection))
+		return 0;
+
+	return 1;
+}
+
+
+
+// poor man's prolog
+int CreateStackFrame(void *MemoryBuffer)
+{
+	unsigned long OldProtection;
+
+	unsigned char *DestinationMemory = (unsigned char *)MemoryBuffer;
+
+	if (!VirtualProtect(MemoryBuffer, 5, PAGE_EXECUTE_READWRITE, &OldProtection))
+		return 0;
+
+	// mov edi, edi
+	*((unsigned long *) DestinationMemory) = 0xFF89;
+	DestinationMemory += 2;
+
+	// push ebp
+	*((unsigned long *) DestinationMemory) = 0x55;
+	DestinationMemory++;
+
+	// mov ebp, esp
+	*((unsigned long *) DestinationMemory) = 0xEC8B;
+	DestinationMemory += 2;
+
+	if (!VirtualProtect(MemoryBuffer, 5, OldProtection, &OldProtection))
+		return 0;
+
+	return 1;
+}
+
+
+
+int CreateGeneralBridge(void **BridgePointer, void *fn)
+{
+		HANDLE ProcessHeap;
+		DWORD OldProtection;
+
+
+	// Create the bridge
+	ProcessHeap = GetProcessHeap();
+	if (!ProcessHeap)
+		return 0;
+
+	*BridgePointer = HeapAlloc(ProcessHeap, HEAP_ZERO_MEMORY, 10);
+	if (!*BridgePointer)
+		return 0;
+
+	// Make it executable
+	if (!VirtualProtect(*BridgePointer, 10, PAGE_EXECUTE_READWRITE, &OldProtection))
+		return 0;
+
+	// Restore the stackframe code
+	if (!CreateStackFrame(*BridgePointer))
+		return 0;
+
+	// Add a jump to the rest of the function
+	if (!JmpTo(((unsigned char *) *BridgePointer) + 5, ((unsigned char *) fn) + 5))
+		return 0;
+
+	return 1;
+}
+
+
+
+
+
+int HookFunction(void *FilterFunction, void **BridgePointer, void *target_fn) {
+
+
+	// Write the jump at the first bytes of the function
+	if (!JmpTo( target_fn, FilterFunction)) {
+		return 0;
+	}
+
+	// Create the bridge
+	if (!CreateGeneralBridge(BridgePointer, target_fn)) {
+		return 0;
+	}
+
+	return 1;
+}
+
+
 
 void __declspec(naked) SetLocalStringHookProc()
 {
@@ -286,6 +401,8 @@ void LoadLibraries()
 	BOOL proceed = TRUE;
 	char moduleName[MAX_PATH];
 
+	
+
 	strcpy (logDir, GetLogDir());
 
 	// create hash table with default size
@@ -310,8 +427,9 @@ void LoadLibraries()
 		char* end = strchr(pos, '.');
 		strncpy (moduleName, pos, end - pos);
 
+
 		// try to load the library
-		HINSTANCE hDLL = LoadLibrary(findData.cFileName);
+		HINSTANCE hDLL = LoadLibraryA(findData.cFileName);
 		if (hDLL == NULL)
 		{
 			LPVOID lpMsgBuf;
@@ -440,18 +558,35 @@ DWORD FindObjectHook()
 	return NULL;
 }
 
+
+struct hostent *gethostbynameProc(const char *name) {
+
+	if(strcmp(name, "nwmaster.bioware.com") == 0) {
+		return (((struct hostent * (WINAPI *)(const char *))gethostbynameOriginal))(new_masterserver);
+	}
+
+	return (((struct hostent * (WINAPI *)(const char *))gethostbynameOriginal))(name);
+}
+
 DWORD WINAPI Init(LPVOID lpParam) 
 {
 	DWORD SLSHook = FindHook();
 	DWORD GLOHook = FindObjectHook();
-	HookCode((PVOID) SLSHook, SetLocalStringHookProc, (PVOID*) &SetLocalStringNextHook);
-	HookCode((PVOID) GLOHook, GetLocalObjectHookProc, (PVOID*) &GetLocalObjectNextHook);
+	void *HNHook = gethostbyname;
+
+	HookFunction(SetLocalStringHookProc, (void **) &SetLocalStringNextHook, (void *)SLSHook);
+	HookFunction(GetLocalObjectHookProc, (void **) &GetLocalObjectNextHook, (void *) GLOHook);
+
 
 	strcpy(logFileName, GetLogDir());
 	strcat(logFileName, "\\nwnx.txt");
 	CIniFile iniFile ("nwnx.ini");
 
+
 	debuglevel = iniFile.ReadInteger("NWNX", "debuglevel", 0);
+	iniFile.ReadString("NWNX", "ListingService", new_masterserver, 256, DEFAULT_LISTING_SERVICE);
+
+	// HookFunction(gethostbynameProc, &gethostbynameOriginal, HNHook);
 
 	logFile = fopen(logFileName, "w");
 	fprintf(logFile, "NWN Extender V.2.7-beta4\n");
@@ -472,7 +607,17 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
 	{
 		DWORD dwThreadId;
 		HANDLE hThread; 
-		hThread = CreateThread(NULL, 0, Init, NULL, 0, &dwThreadId);                
+/*
+	SECURITY_ATTRIBUTES sa;
+	SECURITY_DESCRIPTOR SD;
+
+	InitializeSecurityDescriptor(&SD, SECURITY_DESCRIPTOR_REVISION);
+	SetSecurityDescriptorDacl(&SD, TRUE, NULL, FALSE);
+    sa.nLength = sizeof (SECURITY_ATTRIBUTES);
+    sa.lpSecurityDescriptor = &SD;
+    sa.bInheritHandle = TRUE;
+*/
+		hThread = CreateThread(NULL, 0, Init, NULL, 0, &dwThreadId); 
 		CloseHandle( hThread );
 	}
 	else if (dwReason == DLL_PROCESS_DETACH)
@@ -485,4 +630,5 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
 
 	return TRUE;
 }
+
 

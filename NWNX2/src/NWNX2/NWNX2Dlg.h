@@ -60,7 +60,11 @@ public:
 	int		m_intRestartDelay;
 	int		m_intServerPort;
 	CString	m_strModuleName;
-	bool	m_boolOldGamespyProtocol;
+	bool	m_boolOldGamespyProtocol;  // [addicted] - this option has always been here, but is now misleading due 
+	                                   // to gamespy's withdrawal of services.  I have no idea what this does.
+
+	CString m_customListingService;
+
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides

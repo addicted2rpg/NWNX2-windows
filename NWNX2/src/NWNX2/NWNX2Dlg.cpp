@@ -23,6 +23,7 @@
 #include "NWNX2Dlg.h"
 
 #include "nwnserver.h"
+#include "NWNXshared.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -95,6 +96,8 @@ CNWNX2Dlg::CNWNX2Dlg(CWnd* pParent /*=NULL*/)
 	m_intServerPort = 0;
 	m_strModuleName = _T("");
 	m_boolOldGamespyProtocol = FALSE;
+
+	m_customListingService = _T(DEFAULT_LISTING_SERVICE); 
 	//}}AFX_DATA_INIT
 }
 
@@ -116,14 +119,15 @@ void CNWNX2Dlg::DoDataExchange(CDataExchange* pDX)
 	//}}AFX_DATA_MAP
 }
 
+
 BEGIN_MESSAGE_MAP(CNWNX2Dlg, CDialog)
-	ON_MESSAGE(WM_SERVERRESTARTED_PROCESS, OnServerRestartedProcess)
-	ON_MESSAGE(WM_SERVERRESTARTED_GAMESPY, OnServerRestartedGamespy)
-	ON_MESSAGE(WM_SERVERRESTARTED_GAMESPY_LOCKUP, OnServerRestartedGamespyLockup)
-	ON_MESSAGE(WM_PROCESS_STATE_CHECKING, OnProcessStateChecking)
-	ON_MESSAGE(WM_PROCESS_STATE_NONE, OnProcessStateNone)
-	ON_MESSAGE(WM_GAMESPY_STATE_CHECKING, OnGamespyStateChecking)
-	ON_MESSAGE(WM_GAMESPY_STATE_NONE, OnGamespyStateNone)
+	ON_MESSAGE(WM_SERVERRESTARTED_PROCESS, (LRESULT (__thiscall CWnd::*)(WPARAM, LPARAM)) OnServerRestartedProcess)
+	ON_MESSAGE(WM_SERVERRESTARTED_GAMESPY, (LRESULT (__thiscall CWnd::*)(WPARAM, LPARAM)) OnServerRestartedGamespy)
+	ON_MESSAGE(WM_SERVERRESTARTED_GAMESPY_LOCKUP, (LRESULT (__thiscall CWnd::*)(WPARAM, LPARAM))  OnServerRestartedGamespyLockup)
+	ON_MESSAGE(WM_PROCESS_STATE_CHECKING, (LRESULT (__thiscall CWnd::*)(WPARAM, LPARAM))  OnProcessStateChecking)
+	ON_MESSAGE(WM_PROCESS_STATE_NONE, (LRESULT (__thiscall CWnd::*)(WPARAM, LPARAM))  OnProcessStateNone)
+	ON_MESSAGE(WM_GAMESPY_STATE_CHECKING, (LRESULT (__thiscall CWnd::*)(WPARAM, LPARAM))  OnGamespyStateChecking)
+	ON_MESSAGE(WM_GAMESPY_STATE_NONE, (LRESULT (__thiscall CWnd::*)(WPARAM, LPARAM))  OnGamespyStateNone)
 	//{{AFX_MSG_MAP(CNWNX2Dlg)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
@@ -151,12 +155,12 @@ BOOL CNWNX2Dlg::OnInitDialog()
 	
 	// Include module name in window title
 	char title[80] = "NWNX2";	
-	if (strlen(m_strModuleName) > 0)
+	if (strlen(CStringA(m_strModuleName)) > 0)
 	{	
 		strcat(title, " - ");
-		strcat(title, m_strModuleName);
+		strcat(title, CStringA(m_strModuleName));
 	}
-	SetWindowText(title);
+	SetWindowTextA(this->m_hWnd, title);
 
 	pProcessIcon = (CWnd*)GetDlgItem(IDC_PROCESS_ICON);	
 	pGamespyIcon = (CWnd*)GetDlgItem(IDC_GAMESPY_ICON);	

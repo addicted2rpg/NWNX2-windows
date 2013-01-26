@@ -40,7 +40,7 @@ CIniFile::~CIniFile()
 int CIniFile::ReadInteger (LPCSTR lpszSection, LPCSTR lpszKey, int iDefault)
 {
 	// read integer value from ini-file
-	return GetPrivateProfileInt (lpszSection, lpszKey, iDefault, m_szFileName);
+	return GetPrivateProfileIntA (lpszSection, lpszKey, iDefault, m_szFileName);
 }
 
 long CIniFile::ReadLong (LPCSTR lpszSection, LPCSTR lpszKey, long lDefault)
@@ -58,7 +58,7 @@ long CIniFile::ReadLong (LPCSTR lpszSection, LPCSTR lpszKey, long lDefault)
 void CIniFile::ReadString (LPCSTR lpszSection, LPCSTR lpszKey, LPSTR lpszBuffer, int Size, LPCSTR lpszDefault)
 {
 	// read string value
-	GetPrivateProfileString (lpszSection, lpszKey, lpszDefault, lpszBuffer, Size, m_szFileName);
+	GetPrivateProfileStringA(lpszSection, lpszKey, lpszDefault, lpszBuffer, Size, m_szFileName);
 }
 
 bool CIniFile::ReadBool(LPCSTR lpszSection, LPCSTR lpszKey, bool iDefault)
