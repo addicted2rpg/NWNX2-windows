@@ -1,0 +1,5 @@
+
+Each .DLL file in this directory is a plugin.
+Move desired plugins into the same directory as NWNX2.exe and your neverwinter nights installation to install it.
+It will be activated next time NWNX2 is launched.
+

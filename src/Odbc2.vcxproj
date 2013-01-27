@@ -1,0 +1,171 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{E452C7EB-B04B-485A-86D4-E2AA5ED7B196}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Debug\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutputPath)..\..\Distribution\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Release\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nwnx_odbc</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;ODBC_EXPORTS;NO_TCL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>mysqlclient.lib;Ws2_32.lib;odbc32.lib;odbccp32.lib;madCHook.lib;Advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)Odbc2.dll</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)Odbc2.pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <ImportLibrary>$(OutDir)Odbc2.lib</ImportLibrary>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;ODBC_EXPORTS;NO_TCL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>$(SolutionDir)ODBC2;$(SolutionDir)ODBC2\sqlite;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>mysqlclient.lib;Ws2_32.lib;odbc32.lib;odbccp32.lib;Advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutputPath)..\..\Distribution\nwnx_odbc.dll</OutputFile>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <ImportLibrary>$(SolutoinDir)\Release\nwnx_odbc</ImportLibrary>
+      <TargetMachine>MachineX86</TargetMachine>
+      <AdditionalLibraryDirectories>$(SolutionDir)ODBC2\mysql;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>false</DataExecutionPrevention>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="ODBC2\sqlite\attach.c" />
+    <ClCompile Include="ODBC2\sqlite\auth.c" />
+    <ClCompile Include="ODBC2\sqlite\btree.c" />
+    <ClCompile Include="ODBC2\sqlite\build.c" />
+    <ClCompile Include="ODBC2\sqlite\date.c" />
+    <ClCompile Include="ODBC2\sqlite\delete.c" />
+    <ClCompile Include="ODBC2\sqlite\expr.c" />
+    <ClCompile Include="ODBC2\sqlite\func.c" />
+    <ClCompile Include="ODBC2\sqlite\hash.c" />
+    <ClCompile Include="NWNXdll\IniFile.cpp" />
+    <ClCompile Include="ODBC2\sqlite\insert.c" />
+    <ClCompile Include="ODBC2\sqlite\legacy.c" />
+    <ClCompile Include="ODBC2\sqlite\main.c" />
+    <ClCompile Include="ODBC2\Cmysql.cpp" />
+    <ClCompile Include="NWNXdll\NWNXBase.cpp" />
+    <ClCompile Include="ODBC2\NWNXOdbc.cpp" />
+    <ClCompile Include="ODBC2\Odbc.cpp" />
+    <ClCompile Include="ODBC2\ODBC1.cpp" />
+    <ClCompile Include="ODBC2\sqlite\opcodes.c" />
+    <ClCompile Include="ODBC2\sqlite\os_mac.c" />
+    <ClCompile Include="ODBC2\sqlite\os_unix.c" />
+    <ClCompile Include="ODBC2\sqlite\os_win.c" />
+    <ClCompile Include="ODBC2\sqlite\pager.c" />
+    <ClCompile Include="ODBC2\sqlite\parse.c" />
+    <ClCompile Include="ODBC2\sqlite\pragma.c" />
+    <ClCompile Include="ODBC2\sqlite\printf.c" />
+    <ClCompile Include="ODBC2\sqlite\random.c" />
+    <ClCompile Include="ODBC2\scorcohook.cpp" />
+    <ClCompile Include="ODBC2\sqlite\select.c" />
+    <ClCompile Include="ODBC2\sqlite\shell.c" />
+    <ClCompile Include="ODBC2\sqlite.cpp" />
+    <ClCompile Include="ODBC2\StdAfx.cpp" />
+    <ClCompile Include="ODBC2\sqlite\table.c" />
+    <ClCompile Include="ODBC2\sqlite\tclsqlite.c" />
+    <ClCompile Include="ODBC2\sqlite\tokenize.c" />
+    <ClCompile Include="ODBC2\sqlite\trigger.c" />
+    <ClCompile Include="ODBC2\sqlite\update.c" />
+    <ClCompile Include="ODBC2\sqlite\utf.c" />
+    <ClCompile Include="ODBC2\sqlite\util.c" />
+    <ClCompile Include="ODBC2\sqlite\vacuum.c" />
+    <ClCompile Include="ODBC2\sqlite\vdbe.c" />
+    <ClCompile Include="ODBC2\sqlite\vdbeapi.c" />
+    <ClCompile Include="ODBC2\sqlite\vdbeaux.c" />
+    <ClCompile Include="ODBC2\sqlite\vdbemem.c" />
+    <ClCompile Include="ODBC2\sqlite\where.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="sqlite\btree.h" />
+    <ClInclude Include="sqlite\config.h" />
+    <ClInclude Include="ODBC2\db.h" />
+    <ClInclude Include="sqlite\hash.h" />
+    <ClInclude Include="..\NWNXdll\IniFile.h" />
+    <ClInclude Include="ODBC2\mysql.h" />
+    <ClInclude Include="..\NWNXdll\NWNXBase.h" />
+    <ClInclude Include="NWNXOdbc.h" />
+    <ClInclude Include="Odbc.h" />
+    <ClInclude Include="ODBC1.h" />
+    <ClInclude Include="sqlite\opcodes.h" />
+    <ClInclude Include="sqlite\os.h" />
+    <ClInclude Include="sqlite\os_common.h" />
+    <ClInclude Include="sqlite\os_mac.h" />
+    <ClInclude Include="sqlite\os_unix.h" />
+    <ClInclude Include="sqlite\os_win.h" />
+    <ClInclude Include="sqlite\pager.h" />
+    <ClInclude Include="sqlite\parse.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="scorcohook.h" />
+    <ClInclude Include="sqlite.h" />
+    <ClInclude Include="sqlite\sqlite3.h" />
+    <ClInclude Include="sqlite\sqliteInt.h" />
+    <ClInclude Include="StdAfx.h" />
+    <ClInclude Include="sqlite\vdbe.h" />
+    <ClInclude Include="sqlite\vdbeInt.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
