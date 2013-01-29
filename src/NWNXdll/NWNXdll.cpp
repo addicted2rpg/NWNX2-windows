@@ -1,6 +1,6 @@
 /***************************************************************************
     NWN Extender - Library for injection
-    Copyright (C) 2003 Ingmar Stieger (Papillon) and Jeroen Broekhuizen
+    Copyright (C) 2003 Ingmar Stieger (Papillon) and Jeroen Broekhuizen and David Strait
     email: papillon@blackdagger.com
 
     This program is free software; you can redistribute it and/or modify
@@ -59,15 +59,26 @@ unsigned long oRes;
 
 CHashTable Libraries;
 
-void PayLoad(char*, char*, char**);
+void PayLoad(char*, char**, char**);
 void ObjectPayLoad(char*, char*);
-void SetLocalStringHookProc();
-void GetLocalObjectHookProc(const char **var_name);
 void LoadLibraries ();
-void (*SetLocalStringNextHook)();
-void (*GetLocalObjectNextHook)();
 BOOL APIENTRY DllMain(HANDLE, DWORD, LPVOID);
 char* GetLogDir();
+
+
+
+//void (*SetLocalStringNextHook)();
+//void (*GetLocalObjectNextHook)();
+void *SetLocalStringNextHook = NULL;
+void *GetLocalObjectNextHook = NULL;
+
+
+
+
+DWORD WINAPI GetLocalObjectHookProc(const char **var_name);
+
+
+
 
 
 struct hostent *gethostbynameProc(const char *name);
@@ -75,21 +86,78 @@ void *gethostbynameOriginal = gethostbyname;
 
 
 
+void SetLocalStringHookProc();
 
-
-
+/*
+// This actually works :)
 void __declspec(naked) SetLocalStringHookProc()
 {
 	__asm {
+		nop    
+		call SetLocalStringNextHook
+	}
+}
 
+*/
+
+
+// Things work a little differently now without MadCHook...  
+void __declspec(naked) SetLocalStringHookProc()
+{
+	__asm {
+		nop    // This is related to instruction alignment.  DON'T REMOVE THIS.
+
+		// since PayLoad is __cdecl, we need to save the registers.  It's cleanup is normally handed by 
+		// the compiler at the calling point, but since it is called from naked it is going to mix them up
+		// something fierce.
+		push eax
+		push ebx
+		push ecx
+		push edi
+		push esi
+
+
+		mov eax, [esp+0x8+0x14]
+		push eax
+		mov eax, [esp+0x8+0x14]
+		push eax
+		mov eax, [esp+0x24+0x14]
+		push eax
+		call PayLoad
+		add esp, 0xC
+
+		pop esi
+		pop edi
+		pop ecx
+		pop ebx
+		pop eax
+
+		// This does not call the original, it goes to a custom bridge that eventually leads back 
+		// to the original.  Matters of alignment and stack parameterization are addressed there.
+		call SetLocalStringNextHook
+
+	}
+}
+
+
+ /*
+
+ // Ingmar Stieger's original that uses the MadCHook library:
+void __declspec(naked) SetLocalStringHookProc()
+{
+	__asm {	
+		
 		push ecx	  // save register contents
 		push edx
 		push ebx
 		push esi
 		push edi
+		
 		push ebp	  // prolog 1
         mov ebp, esp  // prolog 2
+		
 
+		
 		mov eax, dword ptr ss:[esp+0x20] // variable value (param 3)
 		//mov eax, [eax] 
 		push eax
@@ -101,29 +169,52 @@ void __declspec(naked) SetLocalStringHookProc()
 		call PayLoad
 		add esp, 0xC
 
+		
 		pop ebp		// restore register contents
 		pop edi		
 		pop esi
 		pop ebx
 		pop edx
 		pop ecx
-		
-		mov eax, dword ptr ss:[esp+0x8] // arg 2
+
+
+
+
+
+		mov eax, dword ptr ss:[esp+0x4]  
 		push eax
-		mov eax, dword ptr ss:[esp+0x8] // arg 1
+		mov eax, dword ptr ss:[esp+0x4]  
 		push eax
 
 		call SetLocalStringNextHook // call original function
-
+		
+		
 		// cleanup stack
-		pop eax
-		add esp, 8
-		push eax
+		pop eax   // grabs return value from SetLocalStringNextHook
+		// add esp, 8  // ends this function
+		add esp, 0xC
+		push eax  // puts it back on the stack
+
 
         retn
 	}
 }
 
+*/
+
+
+DWORD WINAPI GetLocalObjectHookProc(const char **var_name) {
+	//void ObjectPayLoad(char *gameObject, char* name)
+	char **p;
+	p = (char **)var_name;
+
+	fprintf(logFile, "GetLocalObjectHookProc() called!!! PROGRESS!!!!!\n");
+	fflush(logFile);
+
+	ObjectPayLoad(NULL, *p);
+	return (((DWORD (WINAPI *)(const char **a))GetLocalObjectNextHook))(var_name);
+}
+/* 
 void __declspec(naked) GetLocalObjectHookProc(const char **var_name)
 {
 	//Too much assembly here..
@@ -169,19 +260,30 @@ ext:
 	}
 }
 
-void PayLoad(char *gameObject, char* name, char** ppvalue)
+*/
+
+
+
+void PayLoad(char *gameObject, char **pname, char** ppvalue)
 {
 	int iValueLength;
 	int iResultLength;
+	char *name;
+
+	name = *pname;
 	
 	if (!name || !ppvalue || !*ppvalue)
 		return;
 
+		
 	char *value= (char*)*ppvalue;
 
 	if(debuglevel>=3){
 		fprintf(logFile, "name='%s'\n",name);
 		fprintf(logFile, "value='%s'\n",value);
+		if(gameObject == NULL)
+			fprintf(logFile, "gameObject=NULL\n");
+		fflush(logFile);
 	}
 
 
@@ -252,7 +354,7 @@ void PayLoad(char *gameObject, char* name, char** ppvalue)
 		}
 	}
 	else
-		fprintf(logFile, "* Library %s does not exist.", library);
+		fprintf(logFile, "* Library %s does not exist.\n", library);
 }
 
 void ObjectPayLoad(char *gameObject, char* name)
@@ -413,6 +515,7 @@ char* GetLogDir()
 	return logDir;
 }
 
+
 DWORD FindHook()
 {
 	char* ptr = (char*) 0x400000;
@@ -468,14 +571,16 @@ struct hostent *gethostbynameProc(const char *name) {
 	return (((struct hostent * (WINAPI *)(const char *))gethostbynameOriginal))(name);
 }
 
+
+
 DWORD WINAPI Init(LPVOID lpParam) 
 {
 	DWORD SLSHook = FindHook();
 	DWORD GLOHook = FindObjectHook();
 	void *HNHook = gethostbyname;
-
-	HookFunction(SetLocalStringHookProc, (void **) &SetLocalStringNextHook, (void *)SLSHook);
-	HookFunction(GetLocalObjectHookProc, (void **) &GetLocalObjectNextHook, (void *) GLOHook);
+	unsigned char *ptr;
+	DWORD dbg;
+	int SLSAlignment = 1;
 
 
 	strcpy(logFileName, GetLogDir());
@@ -486,12 +591,34 @@ DWORD WINAPI Init(LPVOID lpParam)
 	debuglevel = iniFile.ReadInteger("NWNX", "debuglevel", 0);
 	iniFile.ReadString("NWNX", "ListingService", new_masterserver, 256, DEFAULT_LISTING_SERVICE);
 
-	// HookFunction(gethostbynameProc, &gethostbynameOriginal, HNHook);
+
 
 	logFile = fopen(logFileName, "w");
+
+	if(SLSHook != NULL) {
+		if(!HookFunction((void *)SetLocalStringHookProc,  &SetLocalStringNextHook, (void *)SLSHook, SLSAlignment)) {
+			fprintf(logFile, "SLSHook -failed-\n");
+			fflush(logFile);
+		}
+
+		if(debuglevel >= 3) {
+			fprintf(logFile, "SLSHook=%X\n", SLSHook);
+			fprintf(logFile, "Bridge address=%X\n", SetLocalStringNextHook);
+			BridgeDump(logFile, SetLocalStringNextHook, SLSAlignment);
+			fprintf(logFile, "Trampoline should bounce to: %X\n", InterpretAddress(SetLocalStringNextHook, SLSAlignment));
+			fflush(logFile);
+		}
+
+	}
+	if(GLOHook != NULL) {
+		// HookFunction(GetLocalObjectHookProc, (void **) &GetLocalObjectNextHook, (void *) GLOHook);
+	}
+	// HookFunction(gethostbynameProc, &gethostbynameOriginal, HNHook);
+
 	fprintf(logFile, "NWN Extender V.2.7-beta4\n");
 	fprintf(logFile, "(c) 2004 by Ingmar Stieger (Papillon) and Jeroen Broekhuizen\n");
 	fprintf(logFile, "(c) 2007-2008 by virusman\n");
+	fprintf(logFile, "(c) 2013 by addicted2rpg\n");
 	fprintf(logFile, "visit us at http://www.nwnx.org\n\n");
 	fprintf(logFile, "* Loading plugins...\n");
 	LoadLibraries ();
@@ -501,22 +628,16 @@ DWORD WINAPI Init(LPVOID lpParam)
     return 0; 
 } 
 
+
+
+
 BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
 {
 	if (dwReason == DLL_PROCESS_ATTACH)
 	{
 		DWORD dwThreadId;
 		HANDLE hThread; 
-/*
-	SECURITY_ATTRIBUTES sa;
-	SECURITY_DESCRIPTOR SD;
 
-	InitializeSecurityDescriptor(&SD, SECURITY_DESCRIPTOR_REVISION);
-	SetSecurityDescriptorDacl(&SD, TRUE, NULL, FALSE);
-    sa.nLength = sizeof (SECURITY_ATTRIBUTES);
-    sa.lpSecurityDescriptor = &SD;
-    sa.bInheritHandle = TRUE;
-*/
 		hThread = CreateThread(NULL, 0, Init, NULL, 0, &dwThreadId); 
 		CloseHandle( hThread );
 	}
@@ -532,3 +653,4 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
 }
 
 
+//	MessageBoxA(NULL, name, "Error", MB_TASKMODAL | MB_TOPMOST | MB_ICONERROR | MB_OK);

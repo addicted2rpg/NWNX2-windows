@@ -129,7 +129,7 @@ void HookSCO(FILE* logFile, char* logFileName)
 	}
 
 	//success = HookCode((PVOID) Location, SCOHookProc, (PVOID*) &OriginalSCO);
-	success = HookFunction(SCOHookProc, (PVOID*) &OriginalSCO, (PVOID) Location);
+	success = HookFunction(SCOHookProc, (PVOID*) &OriginalSCO, (PVOID) Location, 0);
 	if (success)
 		fprintf (logFile, "hooked at %x\n", Location);
 	else
@@ -150,7 +150,7 @@ void HookRCO(FILE* logFile, char* logFileName)
 	}
 
 //	success = HookCode((PVOID) Location, RCOHookProc, (PVOID*) &OriginalRCO);
-	success = HookFunction(RCOHookProc, (PVOID*) &OriginalRCO, (PVOID) Location);
+	success = HookFunction(RCOHookProc, (PVOID*) &OriginalRCO, (PVOID) Location, 0);
 	if (success)
 		fprintf (logFile, "hooked at %x\n", Location);
 	else
