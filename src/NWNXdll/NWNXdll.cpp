@@ -1,6 +1,6 @@
 /***************************************************************************
     NWN Extender - Library for injection
-    Copyright (C) 2003 Ingmar Stieger (Papillon) and Jeroen Broekhuizen and David Strait
+    Copyright (C) 2003 Ingmar Stieger (Papillon) and Jeroen Broekhuizen and David Strait (2013)
     email: papillon@blackdagger.com
 
     This program is free software; you can redistribute it and/or modify
@@ -17,20 +17,12 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-  Updates:
-	- 24 March 2003
-		Added support for custom plugins based on the CNWNXBase class.
-	-  4 April 2003
-		Converted ODBC class to seperate plugin.
-	- 14 April 2003
-		1) Changed the NWNX base class making it a nicer interface, including
-		startup initialisation (OnCreate).
-		2) Changed plugin loading: at startup of this DLL all other plugins
-		are loaded. The filename of the plugins should be: nwnx_pluginname.dll.
+ 
  ***************************************************************************/
 
 #include "stdafx.h"
 #include <stdio.h>
+#include <time.h>
 #include <stdlib.h>
 #include <windows.h>
 #include <Winsock2.h>
@@ -42,7 +34,17 @@
 #include "..\NWNX2\NWNXShared.h"
 #include "hook_funcs.h"
 
+
 #pragma comment(lib, "Ws2_32.lib")
+
+
+// gspy list: check; test running around 
+// perms: ??
+// madChook: check ,but not dependencies
+// buildfile: chasing down authors for plugins ;-)
+
+
+#define USE_HOST 0
 
 
 typedef CNWNXBase* (WINAPI* GETCLASSOBJECT)();
@@ -53,6 +55,8 @@ char logDir[8] = {0};
 char logFileName[18] = {0};
 int debuglevel = 0;
 char new_masterserver[256];
+struct hostent *masterserver = NULL;
+unsigned long address_master;
 
 bool ObjRet = 0;
 unsigned long oRes;
@@ -72,44 +76,31 @@ char* GetLogDir();
 void *SetLocalStringNextHook = NULL;
 void *GetLocalObjectNextHook = NULL;
 
+void SetLocalStringHookProc();
+void GetLocalObjectHookProc(const char **var_name);
 
 
+/*********** WINAPI functions *************************/
 
-DWORD WINAPI GetLocalObjectHookProc(const char **var_name);
+int WINAPI sendtoProc(SOCKET s, const char *buf, int len, int flags, const sockaddr *to, int tolen);
+void *sendtoOriginal = NULL;
 
-
-
-
-
-struct hostent *gethostbynameProc(const char *name);
+struct hostent * WINAPI gethostbynameProc(const char *name);
 void *gethostbynameOriginal = gethostbyname;
 
 
 
-void SetLocalStringHookProc();
+/***************************************************/
 
-/*
-// This actually works :)
-void __declspec(naked) SetLocalStringHookProc()
-{
-	__asm {
-		nop    
-		call SetLocalStringNextHook
-	}
-}
-
-*/
 
 
 // Things work a little differently now without MadCHook...  
 void __declspec(naked) SetLocalStringHookProc()
 {
 	__asm {
-		nop    // This is related to instruction alignment.  DON'T REMOVE THIS.
 
-		// since PayLoad is __cdecl, we need to save the registers.  It's cleanup is normally handed by 
-		// the compiler at the calling point, but since it is called from naked it is going to mix them up
-		// something fierce.
+		// Since PayLoad is called from naked, we need to do this.  The compiler won't put in 
+		// __cdecl and __stdcall preparations
 		push eax
 		push ebx
 		push ecx
@@ -199,22 +190,57 @@ void __declspec(naked) SetLocalStringHookProc()
         retn
 	}
 }
-
 */
 
+void __declspec(naked) GetLocalObjectHookProc(const char **var_name)
+{
 
-DWORD WINAPI GetLocalObjectHookProc(const char **var_name) {
-	//void ObjectPayLoad(char *gameObject, char* name)
-	char **p;
-	p = (char **)var_name;
+	__asm {
 
-	fprintf(logFile, "GetLocalObjectHookProc() called!!! PROGRESS!!!!!\n");
-	fflush(logFile);
+		push eax
+		push ebx
+		push ecx
+		push edi
+		push esi
 
-	ObjectPayLoad(NULL, *p);
-	return (((DWORD (WINAPI *)(const char **a))GetLocalObjectNextHook))(var_name);
+		mov eax, dword ptr ss:[esp+0x18] // variable name (param 2)
+		mov eax, [eax] 
+		push eax
+		mov eax, dword ptr ss:[esp+0x2C] // game object (param 1)
+		push eax
+		call ObjectPayLoad
+		add esp, 0x8
+
+		pop esi
+		pop edi
+		pop ecx
+		pop ebx
+
+
+		xor eax, eax
+		mov al, byte ptr ObjRet //check if we need to bypass the original function and return our value
+		test eax, eax
+		mov ObjRet, 0
+		mov eax, oRes  //return value
+
+
+		jnz ext  //don't call the original function
+
+//		mov eax, dword ptr ss:[esp+0x4] // arg 1
+//		push eax
+		pop eax
+		call GetLocalObjectNextHook
+
+ext:
+		add esp, 0x4
+        retn 4
+	}
+
+
 }
-/* 
+
+
+/*
 void __declspec(naked) GetLocalObjectHookProc(const char **var_name)
 {
 	//Too much assembly here..
@@ -225,6 +251,8 @@ void __declspec(naked) GetLocalObjectHookProc(const char **var_name)
 		push ebx
 		push esi
 		push edi
+
+
 		push ebp	  // prolog 1
         mov ebp, esp  // prolog 2
 
@@ -261,6 +289,47 @@ ext:
 }
 
 */
+
+
+// WINAPI functions (the originals, not the hooks) are so predictable we don't need to bother with assembly.
+int WINAPI sendtoProc(SOCKET s, const char *buf, int len, int flags, const sockaddr *to, int tolen) {
+	struct sockaddr_in *caller;
+	unsigned long previous;
+	int ret;
+	
+
+
+	if(to != NULL && address_master != 0) {
+		caller = (struct sockaddr_in *) to;		
+		if(caller->sin_port == htons(5121)) {
+			previous = caller->sin_addr.s_addr;
+			fprintf(logFile, "5121 activity, redirecting\n");
+			caller->sin_addr.s_addr = address_master;
+			ret = ((int (WINAPI *)(SOCKET, const char *, int, int, const sockaddr *, int))sendtoOriginal)(s, buf, len, flags, to, tolen);
+			caller->sin_addr.s_addr = previous;
+			
+		}
+			
+	}
+	
+	ret = ((int (WINAPI *)(SOCKET, const char *, int, int, const sockaddr *, int))sendtoOriginal)(s, buf, len, flags, to, tolen);
+	return ret;
+}
+
+struct hostent * WINAPI gethostbynameProc(const char *name) {
+
+	if(strcmp(name, "nwmaster.bioware.com") == 0  //|| strcmp(name, "nwn.master.gamespy.com") == 0
+		) {
+		return (((struct hostent * (WINAPI *)(const char *))gethostbynameOriginal))(new_masterserver);
+	}
+	/*
+	if(strcmp(name, "nwn.master.gamespy.com") == 0) {
+		return (((struct hostent * (WINAPI *)(const char *))gethostbynameOriginal))("api.mst.valhallalegends.com");
+	}
+	*/
+
+	return (((struct hostent * (WINAPI *)(const char *))gethostbynameOriginal))(name);
+}
 
 
 
@@ -361,8 +430,10 @@ void ObjectPayLoad(char *gameObject, char* name)
 {
 	if (!name)
 		return;
-	if(debuglevel>=3)
+	if(debuglevel>=3) {
 		fprintf(logFile, "Object Request='%s'\n",name);
+		fflush(logFile);
+	}
 
 	if (strncmp(name, "NWNX!", 5) != 0) 	// not for us
 		return;
@@ -561,26 +632,43 @@ DWORD FindObjectHook()
 	return NULL;
 }
 
+void NewMasterServerInit() {
+	clock_t c;
+	float t;
 
-struct hostent *gethostbynameProc(const char *name) {
+	address_master = 0;
 
-	if(strcmp(name, "nwmaster.bioware.com") == 0) {
-		return (((struct hostent * (WINAPI *)(const char *))gethostbynameOriginal))(new_masterserver);
+	// Try to get the master server, but give up after 10 seconds.
+	c = clock();
+	while(masterserver == NULL) {
+		masterserver = gethostbyname(new_masterserver);
+		t = ((float)c) / ((float)CLOCKS_PER_SEC);
+		if(t > 10.0f) {
+			break;
+		}
 	}
 
-	return (((struct hostent * (WINAPI *)(const char *))gethostbynameOriginal))(name);
-}
+	if(masterserver == NULL) {
+		fprintf(logFile, "Could not resolve hostname: %s\n", new_masterserver);
+	}
+	else {
+		address_master = *(unsigned long *)masterserver->h_addr_list[0];		
+	}
 
+	if(address_master == 0) {
+		fprintf(logFile, "Couldn't lookup new master server.\n");
+		fflush(logFile);
+	}
+}
 
 
 DWORD WINAPI Init(LPVOID lpParam) 
 {
 	DWORD SLSHook = FindHook();
 	DWORD GLOHook = FindObjectHook();
-	void *HNHook = gethostbyname;
-	unsigned char *ptr;
-	DWORD dbg;
 	int SLSAlignment = 1;
+	int GLOAlignment = 0;
+
 
 
 	strcpy(logFileName, GetLogDir());
@@ -595,6 +683,8 @@ DWORD WINAPI Init(LPVOID lpParam)
 
 	logFile = fopen(logFileName, "w");
 
+	NewMasterServerInit();
+
 	if(SLSHook != NULL) {
 		if(!HookFunction((void *)SetLocalStringHookProc,  &SetLocalStringNextHook, (void *)SLSHook, SLSAlignment)) {
 			fprintf(logFile, "SLSHook -failed-\n");
@@ -605,17 +695,41 @@ DWORD WINAPI Init(LPVOID lpParam)
 			fprintf(logFile, "SLSHook=%X\n", SLSHook);
 			fprintf(logFile, "Bridge address=%X\n", SetLocalStringNextHook);
 			BridgeDump(logFile, SetLocalStringNextHook, SLSAlignment);
-			fprintf(logFile, "Trampoline should bounce to: %X\n", InterpretAddress(SetLocalStringNextHook, SLSAlignment));
+			fprintf(logFile, "Trampoline should bounce to: %X\n\n", InterpretAddress(SetLocalStringNextHook, SLSAlignment));
 			fflush(logFile);
 		}
 
 	}
 	if(GLOHook != NULL) {
-		// HookFunction(GetLocalObjectHookProc, (void **) &GetLocalObjectNextHook, (void *) GLOHook);
-	}
-	// HookFunction(gethostbynameProc, &gethostbynameOriginal, HNHook);
+		if(!HookFunction(GetLocalObjectHookProc, (void **) &GetLocalObjectNextHook, (void *) GLOHook, GLOAlignment)) {
+			fprintf(logFile, "GLOHook -failed-\n");
+			fflush(logFile);
+		}
 
-	fprintf(logFile, "NWN Extender V.2.7-beta4\n");
+		if(debuglevel >= 3) {
+			fprintf(logFile, "GLOHook=%X\n", GLOHook);
+			fprintf(logFile, "Bridge address=%X\n", GetLocalObjectNextHook);
+			BridgeDump(logFile, GetLocalObjectNextHook, GLOAlignment);
+			fprintf(logFile, "Trampoline should bounce to: %X\n\n", InterpretAddress(GetLocalObjectNextHook, GLOAlignment));
+			fflush(logFile);
+
+		}
+	}
+	
+	if(!USE_HOST) {
+		if(!HookFunction(sendtoProc, (void **)&sendtoOriginal, sendto, WINDOWS_LIBRARY)) {
+			fprintf(logFile, "sendto() hook failed, expect interruption in server registration services.\n");
+			fflush(logFile); 
+		}
+	}
+	else {
+		HookFunction(gethostbynameProc, (void **) &gethostbynameOriginal, gethostbyname, WINDOWS_LIBRARY);
+	}
+	
+
+		
+
+	fprintf(logFile, "NWN Extender V.2.71-beta1\n");
 	fprintf(logFile, "(c) 2004 by Ingmar Stieger (Papillon) and Jeroen Broekhuizen\n");
 	fprintf(logFile, "(c) 2007-2008 by virusman\n");
 	fprintf(logFile, "(c) 2013 by addicted2rpg\n");

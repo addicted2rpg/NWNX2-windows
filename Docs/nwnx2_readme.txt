@@ -4,6 +4,7 @@ Changelog:
 2.71-alpha (01.26.2013)
 - Removed madChook library and DLL dependencies
 - New server registration system
+- 64-bit OS compatibility enhancements
 - Added optional line support to NWNX.INI file:
 		ListingService = "service"
 		Currently defaults to "nwn1.mst.valhallalegends.com"

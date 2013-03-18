@@ -33,7 +33,7 @@ int make_jmp(unsigned char *clobber, unsigned char *destination, unsigned char *
 		                                    // savelen > 5, then we'll want to padd with nops
 	}
 
-	*((unsigned long *) (clobber + 1)) = (unsigned long) (destination - clobber - 4);
+	*((unsigned long *) (clobber + 1)) = (unsigned long) (destination - (clobber + 1) - 4);
 
 
 	if (!VirtualProtect(clobber, 5, old_mask, &old_mask))
@@ -46,7 +46,7 @@ int make_jmp(unsigned char *clobber, unsigned char *destination, unsigned char *
 
 
 /// 
-int CreateStackFrame(void *MemoryBuffer)
+int CreateStackFrame(void *MemoryBuffer, int windowslib)
 {
 	unsigned long OldProtection;
 
@@ -55,24 +55,37 @@ int CreateStackFrame(void *MemoryBuffer)
 	if (!VirtualProtect(MemoryBuffer, 5, PAGE_EXECUTE_READWRITE, &OldProtection))
 		return 0;
 
-	// mov edi, edi.... a Windows thing?
-	// *((unsigned long *) DestinationMemory) = 0xFF89;
+	if(windowslib) {
+	
+		// mov edi, edi.... yep, first inst on every windows lib.  Absolutely amazing. :)
+		*((unsigned long *) DestinationMemory) = 0xFF89;
+		DestinationMemory += 2;
 
-	*((unsigned long *) DestinationMemory) = 0x9090;
-	DestinationMemory += 2;
+		*((unsigned long *) DestinationMemory) = 0x55;  // push ebp
+		DestinationMemory++;
+		*((unsigned long *) DestinationMemory) = 0xEC8B;  // mov ebp, esp
+		DestinationMemory += 2;
 
-	// *((unsigned long *) DestinationMemory) = 0x55;  // push ebp
-	// *((unsigned long *) DestinationMemory) = 0xEC8B;  // mov ebp, esp
-	*((unsigned long *) DestinationMemory) = 0x58;  // pop eax=0x58
-	DestinationMemory++;
+	}
+	else {
+
+		*((unsigned long *) DestinationMemory) = 0x9090;
+		DestinationMemory += 2;
+		*((unsigned long *) DestinationMemory) = 0x58;  // pop eax=0x58
+		DestinationMemory++;
+		*((unsigned long *) DestinationMemory) = 0x90;  // pop ebp=0x5D
+		DestinationMemory++;
 
 
-	*((unsigned long *) DestinationMemory) = 0x90;  // pop ebp=0x5D
-	DestinationMemory++;
+		*((unsigned long *) DestinationMemory) = 0x90;  // push eax=0x50
+		DestinationMemory++;
+
+	}
+
+	
+	
 
 
-	*((unsigned long *) DestinationMemory) = 0x90;  // push eax=0x50
-	DestinationMemory += 2;
 
 	
 	if (!VirtualProtect(MemoryBuffer, 5, OldProtection, &OldProtection))
@@ -121,14 +134,14 @@ int CreateGeneralBridge(void **BridgePointer, void *fn, unsigned char *fill, int
 
 	// Restore the stackframe code
 	if(create_stackframe && CREATE_FRAME_FIRST) {
-		if (!CreateStackFrame(*BridgePointer)) {
+		if (!CreateStackFrame(*BridgePointer, (alignment == WINDOWS_LIBRARY) )) {
 			return 0;
 		}
 		offset += 5;
 	}
 
 	c_bridge = (unsigned char *)*BridgePointer;
-	if(fill != NULL) {
+	if(fill != NULL && alignment != WINDOWS_LIBRARY) {
 		for(i=0; i < fill_len;i++) {
 			c_bridge[offset+i] = fill[i];
 		}
@@ -136,17 +149,23 @@ int CreateGeneralBridge(void **BridgePointer, void *fn, unsigned char *fill, int
 	}
 
 	if(create_stackframe && !CREATE_FRAME_FIRST) {
-		if (!CreateStackFrame(&(c_bridge[offset]))) {
+		if (!CreateStackFrame(&(c_bridge[offset]), (alignment == WINDOWS_LIBRARY))) {
 			return 0;
 		}
 		offset += 5;
 	}
 
+	if(alignment == WINDOWS_LIBRARY) {
+		if (!make_jmp(  &(c_bridge[offset]) , ((unsigned char *) fn) + 5, unused, 5)) {
+			return 0;
+		}
+	} 
+	else {
 	
-	// my only concern is there could be an alignment issue here dependent on the instruction that follows
-	// where the initial clobber address was.
-	if (!make_jmp(  &(c_bridge[offset]) , ((unsigned char *) fn)  + alignment + 4, unused, 5))
-		return 0;
+		if (!make_jmp(  &(c_bridge[offset]) , ((unsigned char *) fn)  + alignment + 5, unused, 5)) {
+			return 0;
+		}
+	}
 
 	return 1;
 }
@@ -167,8 +186,15 @@ int HookFunction(void *FilterFunction, void **BridgePointer, void *target_fn, in
 	// DWORD newMask, oldMask;
 	int previous_length;
 
-	previous = (unsigned char *)malloc(alignment + 5);  // the jump instruction, plus how much you're aligning
-	previous_length = alignment + 5;
+	if(alignment != WINDOWS_LIBRARY) {
+		previous = (unsigned char *)malloc(alignment + 5);  // the jump instruction, plus how much you're aligning
+		previous_length = alignment + 5;
+	}
+	else {
+		// so make_jump will succeed, but unused in the case of WINDOWS_LIBRARY
+		previous = (unsigned char *)malloc(5);
+		previous_length = 5;
+	}
 
 	if (!make_jmp( targetFN_cast,  (unsigned char *)FilterFunction , 
 	                previous, previous_length)) {
@@ -183,68 +209,6 @@ int HookFunction(void *FilterFunction, void **BridgePointer, void *target_fn, in
 
 	free(previous);
 
-/* 
-
-
-	size_desired = 5;  // for the JMP to get out
-
-	if(save_previous)
-		size_desired += 5;  // for the previous
-	if(create_frame)
-		size_desired += 5;  // for the stack frame
-
-	// make size_desired bytes pointed to by heap_ptr allocated and executable.
-	process_heap = GetProcessHeap();
-	heap_ptr = (unsigned char *)HeapAlloc(process_heap, HEAP_ZERO_MEMORY, size_desired);
-	if(heap_ptr == NULL) {
-		return 0;
-	}
-	if(!VirtualProtect((void *)heap_ptr, size_desired, PAGE_EXECUTE_READWRITE, &oldMask)) {
-		return 0;
-	}
-
-	//make_jmp(targetFN_cast, heap_ptr, previous);
-	make_jmp(targetFN_cast, (unsigned char *)FilterFunction, previous); // going to wreck my work...
-	
-	if(create_frame) {
-		CreateStackFrame((void *)heap_ptr);
-		heap_ptr = heap_ptr + 5;  // forward past the stack frame we just made
-	}
-
-	if(save_previous) {
-		heap_ptr[0] = previous[0];
-		heap_ptr[1] = previous[1];
-		heap_ptr[2] = previous[2];
-		heap_ptr[3] = previous[3];
-		heap_ptr[4] = previous[4];
-		heap_ptr = heap_ptr + 5;   // For writing to jump filter
-	}
-
-
-	make_jmp(heap_ptr, (unsigned char *)FilterFunction, unused);
-
-	if(save_previous) 
-		heap_ptr = heap_ptr - 5;
-
-	if(create_frame)
-		heap_ptr = heap_ptr - 5;  //back to the original from stackframe
-
-	newMask = oldMask;
-	VirtualProtect((void *)heap_ptr, size_desired, newMask, &oldMask);
-
-	//////  Ok, now let's worry about the journey home.
-	size_desired = 5;
-	// process_heap = GetProcessHeap(); 
-	heap_ptr = (unsigned char *)HeapAlloc(process_heap, HEAP_ZERO_MEMORY, size_desired);
-	VirtualProtect((void *)heap_ptr, size_desired, PAGE_EXECUTE_READWRITE, &oldMask);
-
-	make_jmp(heap_ptr, targetFN_cast + 5 + alignment, unused);
-
-	newMask = oldMask;
-	VirtualProtect((void *)heap_ptr, size_desired, newMask, &oldMask);
-
-	*/
-
 	
 
 
@@ -255,7 +219,10 @@ int HookFunction(void *FilterFunction, void **BridgePointer, void *target_fn, in
 void BridgeDump(FILE *fhandle, void *bridge_location, int alignment) {
 	unsigned char *p;
 	int length, i;
-	int saved_bytes = alignment + 5;
+	int saved_bytes;
+	
+	
+	saved_bytes = alignment + 5;
 
 	length = 5;  // minimum length, a jump mandatory (5 bytes)
 	if(CREATE_FRAME) {
@@ -263,6 +230,11 @@ void BridgeDump(FILE *fhandle, void *bridge_location, int alignment) {
 	}
 	if(SAVE_PREVIOUS) {
 		length += saved_bytes;
+	}
+
+	// hammer the above and use windows library mode
+	if(alignment == WINDOWS_LIBRARY) {
+		length = 10;
 	}
 
 	fprintf(fhandle, "Bridge Dump: ");
@@ -282,8 +254,10 @@ DWORD InterpretAddress(void *supposed_callback, int alignment) {
 	unsigned char *ptr;
 	DWORD dbg;
 	int offset;
-	int previous_byte_length = alignment + 5;
+	int previous_byte_length;
 
+
+	previous_byte_length = alignment + 5;
 	offset = 4;
 
 	if(SAVE_PREVIOUS) {
@@ -291,6 +265,11 @@ DWORD InterpretAddress(void *supposed_callback, int alignment) {
 	}
 	if(CREATE_FRAME) {
 		offset += 5;
+	}
+
+	// hammer the above changes and go with a default lib bridge interpretation.
+	if(alignment == WINDOWS_LIBRARY) {
+		offset = 9;
 	}
 
 	ptr = (unsigned char *)supposed_callback;
