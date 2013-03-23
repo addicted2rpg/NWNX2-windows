@@ -23,11 +23,11 @@
 #include "stdafx.h"
 #include "scorcohook.h"
 #include "NWNXOdbc.h"
-#include "madCHook.h"
-//#include "..\NWNXdll\hook_funcs.h"
-//#include "..\NWNXdll\hook_funcs.cpp"
+//#include "madCHook.h"
+#include "..\NWNXdll\hook_funcs.h"
+#include "..\NWNXdll\hook_funcs.cpp"
 
-#pragma comment(lib, "ODBC2\\madCHook.lib")
+// #pragma comment(lib, "ODBC2\\madCHook.lib")
 
 void (*OriginalSCO)();
 void (*OriginalRCO)();
@@ -131,8 +131,8 @@ void HookSCO(FILE* logFile, char* logFileName)
 		return;
 	}
 
-	success = HookCode((PVOID) Location, SCOHookProc, (PVOID*) &OriginalSCO);
-	// success = HookFunction(SCOHookProc, (PVOID*) &OriginalSCO, (PVOID) Location, 0);
+	//success = HookCode((PVOID) Location, SCOHookProc, (PVOID*) &OriginalSCO);
+	success = HookFunction(SCOHookProc, (PVOID*) &OriginalSCO, (PVOID) Location, 1);
 	if (success)
 		fprintf (logFile, "hooked at %x\n", Location);
 	else
@@ -152,14 +152,15 @@ void HookRCO(FILE* logFile, char* logFileName)
 		return;
 	}
 
-	success = HookCode((PVOID) Location, RCOHookProc, (PVOID*) &OriginalRCO);
-//	success = HookFunction(RCOHookProc, (PVOID*) &OriginalRCO, (PVOID) Location, 0);
+	//success = HookCode((PVOID) Location, RCOHookProc, (PVOID*) &OriginalRCO);
+	success = HookFunction(RCOHookProc, (PVOID*) &OriginalRCO, (PVOID) Location, 1);
 	if (success)
 		fprintf (logFile, "hooked at %x\n", Location);
 	else
 		fprintf (logFile, "not hooked (%d - %s)!\n", dwError, szError);
 }
 
+// 8B* 09 85 C9 74 26
 DWORD FindHookSCO()
 {
 	char* ptr = (char*) 0x400000;
@@ -179,6 +180,7 @@ DWORD FindHookSCO()
 	return NULL;
 }
 
+// 8b* 09 85 C9 74 21
 DWORD FindHookRCO()
 {
 	char* ptr = (char*) 0x400000;

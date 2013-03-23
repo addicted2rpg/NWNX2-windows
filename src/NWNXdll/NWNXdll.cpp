@@ -54,9 +54,6 @@ FILE *logFile;
 char logDir[8] = {0};
 char logFileName[18] = {0};
 int debuglevel = 0;
-char new_masterserver[256];
-struct hostent *masterserver = NULL;
-unsigned long address_master;
 
 bool ObjRet = 0;
 unsigned long oRes;
@@ -71,6 +68,7 @@ char* GetLogDir();
 
 
 
+/******** Core NWNX2 stuff **************/
 //void (*SetLocalStringNextHook)();
 //void (*GetLocalObjectNextHook)();
 void *SetLocalStringNextHook = NULL;
@@ -80,7 +78,7 @@ void SetLocalStringHookProc();
 void GetLocalObjectHookProc(const char **var_name);
 
 
-/*********** WINAPI functions *************************/
+/*********** WINAPI function overrides & vars for server listing *********************/
 
 int WINAPI sendtoProc(SOCKET s, const char *buf, int len, int flags, const sockaddr *to, int tolen);
 void *sendtoOriginal = NULL;
@@ -88,7 +86,11 @@ void *sendtoOriginal = NULL;
 struct hostent * WINAPI gethostbynameProc(const char *name);
 void *gethostbynameOriginal = gethostbyname;
 
-
+char new_masterserver[256];
+struct hostent *masterserver = NULL;
+struct hostent *biowareserver = NULL;
+unsigned long address_master;
+unsigned long address_bioware;
 
 /***************************************************/
 
@@ -292,22 +294,22 @@ ext:
 
 
 // WINAPI functions (the originals, not the hooks) are so predictable we don't need to bother with assembly.
+// (they all begin with mov edi, edi + prolog)
 int WINAPI sendtoProc(SOCKET s, const char *buf, int len, int flags, const sockaddr *to, int tolen) {
 	struct sockaddr_in *caller;
-	unsigned long previous;
 	int ret;
 	
 
 
 	if(to != NULL && address_master != 0) {
 		caller = (struct sockaddr_in *) to;		
-		if(caller->sin_port == htons(5121)) {
-			previous = caller->sin_addr.s_addr;
-			fprintf(logFile, "5121 activity, redirecting\n");
+		//if(caller->sin_port == htons(5121)) {
+		if(caller->sin_addr.s_addr == address_bioware) {
+			//fprintf(logFile, "Echoing data to valhalla\n");
 			caller->sin_addr.s_addr = address_master;
 			ret = ((int (WINAPI *)(SOCKET, const char *, int, int, const sockaddr *, int))sendtoOriginal)(s, buf, len, flags, to, tolen);
-			caller->sin_addr.s_addr = previous;
-			
+			caller->sin_addr.s_addr = address_bioware;
+			// do not return here, allow original packet to be sent as usual.
 		}
 			
 	}
@@ -316,17 +318,22 @@ int WINAPI sendtoProc(SOCKET s, const char *buf, int len, int flags, const socka
 	return ret;
 }
 
+
+/// This solution works pretty well from basic testing (extensive testing not done yet).
+/// The only real reason why I don't use it is the author of the listing, Skywing, recommended I 
+/// duplicate traffic rather than re-direct it.  To enable the host-redirect, go to the top of this file 
+/// and set USE_HOST to 1.  At present, I see no need to make this an option in NWNX.ini.
 struct hostent * WINAPI gethostbynameProc(const char *name) {
 
-	if(strcmp(name, "nwmaster.bioware.com") == 0  //|| strcmp(name, "nwn.master.gamespy.com") == 0
+	if(strcmp(name, "nwmaster.bioware.com") == 0 
 		) {
 		return (((struct hostent * (WINAPI *)(const char *))gethostbynameOriginal))(new_masterserver);
 	}
-	/*
-	if(strcmp(name, "nwn.master.gamespy.com") == 0) {
-		return (((struct hostent * (WINAPI *)(const char *))gethostbynameOriginal))("api.mst.valhallalegends.com");
-	}
-	*/
+	
+	//if(strcmp(name, "nwn.master.gamespy.com") == 0) {
+	//	return (((struct hostent * (WINAPI *)(const char *))gethostbynameOriginal))("api.mst.valhallalegends.com");
+	//}
+	
 
 	return (((struct hostent * (WINAPI *)(const char *))gethostbynameOriginal))(name);
 }
@@ -648,6 +655,16 @@ void NewMasterServerInit() {
 		}
 	}
 
+	// Repeat the same code block; let's get nwmaster.bioware.com now
+	while(biowareserver == NULL) {
+		biowareserver = gethostbyname("nwmaster.bioware.com");
+		t = ((float)c) / ((float)CLOCKS_PER_SEC);
+		if(t > 10.0f) {
+			break;
+		}
+	}
+
+
 	if(masterserver == NULL) {
 		fprintf(logFile, "Could not resolve hostname: %s\n", new_masterserver);
 	}
@@ -655,10 +672,23 @@ void NewMasterServerInit() {
 		address_master = *(unsigned long *)masterserver->h_addr_list[0];		
 	}
 
+	if(biowareserver == NULL) {
+		fprintf(logFile, "Could not resolve hostname: nwmaster.bioware.com\n");
+	}
+	else {
+		address_bioware = *(unsigned long *)biowareserver->h_addr_list[0];
+	}
+
 	if(address_master == 0) {
-		fprintf(logFile, "Couldn't lookup new master server.\n");
+		fprintf(logFile, "Couldn't lookup new master server.  This is pretty bad.  Checking your DNS is advised.\n");
 		fflush(logFile);
 	}
+
+	if(address_bioware == 0) {
+		fprintf(logFile, "Couldn't lookup nwmaster.bioware.com.\n");
+		fflush(logFile);
+	}
+
 }
 
 
@@ -732,7 +762,7 @@ DWORD WINAPI Init(LPVOID lpParam)
 	fprintf(logFile, "NWN Extender V.2.71-beta1\n");
 	fprintf(logFile, "(c) 2004 by Ingmar Stieger (Papillon) and Jeroen Broekhuizen\n");
 	fprintf(logFile, "(c) 2007-2008 by virusman\n");
-	fprintf(logFile, "(c) 2013 by addicted2rpg\n");
+	fprintf(logFile, "(c) 2013 by addicted2rpg (https://github.com/addicted2rpg/NWNX2-windows)\n");
 	fprintf(logFile, "visit us at http://www.nwnx.org\n\n");
 	fprintf(logFile, "* Loading plugins...\n");
 	LoadLibraries ();
