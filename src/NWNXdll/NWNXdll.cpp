@@ -38,11 +38,10 @@
 #pragma comment(lib, "Ws2_32.lib")
 
 
-// gspy list: check; test running around 
 // perms: ??
-// madChook: check ,but not dependencies
 // buildfile: chasing down authors for plugins ;-)
-
+// madChook: check; lets pray ODBC holds up good :)
+// gspy list: check; preliminary game use looks good.
 
 #define USE_HOST 0
 

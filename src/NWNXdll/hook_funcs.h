@@ -7,6 +7,12 @@ int make_jmp(unsigned char *clobber, unsigned char *destination, unsigned char *
 int CreateStackFrame(void *MemoryBuffer, int windowslib);
 int CreateGeneralBridge(void **BridgePointer, void *fn, unsigned char *fill, int fill_len, int alignment, int create_stackframe);
 
+// MadCHook conversion is HookCode(Target, FilterFunction, Original))
+// example from ODBC:
+// HookCode((PVOID) Location, SCOHookProc, (PVOID*) &OriginalSCO);
+// HookFunction(SCOHookProc, (PVOID*) &OriginalSCO, (PVOID) Location, 1);
+// So throw target/location to the end, with instruction alignment.
+
 int HookFunction(void *FilterFunction, void **BridgePointer, void *target_fn, int alignment);
 
 // These are for debugging my own damn API, lol... :) 

@@ -1,5 +1,9 @@
 
-Each .DLL file in this directory is a plugin.
-Move desired plugins into the same directory as NWNX2.exe and your neverwinter nights installation to install it.
+Each subdirectory represents a plugin.  The .DLL file in each respective directory named nwnx_<plugin name>.dll
+needs to be moved into the same directory as NWNX2.exe and your neverwinter nights installation to install it.
 It will be activated next time NWNX2 is launched.
+
+There may be package files, such as NWN Scripts or other resources, which may be needed to included in your module, 
+dependent on the plugin you are using.  These resources, if any, can be found in the corresponding plugin's subdirectory.
+
 
