@@ -282,8 +282,8 @@ int CNssPlayer::BootPCWithMessage(CGameObject *oObject, char *Params) {
 int CNssPlayer::PopUpMessage(CGameObject *oObject, char *Params) {
 	CNWSPlayer *Player = (*NWN_AppManager)->app_server->GetClientObjectByObjectId(oObject->obj_id);
 	if (Player) {
-
 		CNWSMessage *Msg = (*NWN_AppManager)->app_server->GetNWSMessage();
+		
 
 		CGameObjectArray *CGA = (*NWN_AppManager)->app_server->GetObjectArray();
 
@@ -291,18 +291,31 @@ int CNssPlayer::PopUpMessage(CGameObject *oObject, char *Params) {
 
 		((CNWMessage*)Msg)->CreateWriteMessage(128, Player->pl_id, 1);
 
+
 		Msg->WriteOBJECTIDServer(oObject->obj_id);
 		CExoString Text = Params;
 
+
 		char *pMessageData = 0;
 		nwn_objid_t Sender = 0;
+		DWORD oldMask;
 
 		((CNWMessage*)Msg)->WriteBOOL(1);
-		((CNWMessage*)Msg)->WriteCExoString(Text, 32);
 
+		// addicted2rpg:  This line is definitely failing.  It crashes at 0x773DE41B writing to a null pointer.
+		// addicted2rpg:  I don't have the time to debug it and fix it.  Commenting it out sends a blank 
+		// popup, which I would rather do until its fixed.
+		// ((CNWMessage*)Msg)->WriteCExoString(Text, 32);
+
+		
+		
 		if (((CNWMessage*)Msg)->GetWriteMessage(&pMessageData, &Sender)) {
 			Msg->SendServerToPlayerMessage(Player->pl_id, 27, 4, pMessageData, Sender);
+
+			//addicted2rpg: just experimenting below.  This line actually preserves the server, but crashes the client!
+			//Msg->SendServerToPlayerMessage(Player->pl_id, 27, 4, (void *)&Params, Sender);
 		}
+		
 
 		return 1;
 	}

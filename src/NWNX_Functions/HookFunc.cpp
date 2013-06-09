@@ -117,16 +117,21 @@ void CHookFunctions::HookFunctions() {
 		_log(1, "* CNWVirtualMachineCommands__ExecuteCommandItemPropertyEffect hooked\n");
 	else _log(1, "X CNWVirtualMachineCommands__ExecuteCommandItemPropertyEffect hook failed\n");
 
+	/*
+	// LOAD FAIL!!!
 	//if (HookCode((PVOID)CNWSMessage__TestObjectVisibleORG, CNWSMessage__TestObjectVisibleHOOK, (PVOID*)&CNWSMessage__TestObjectVisibleNEXT))
 	if (HookFunction(CNWSMessage__TestObjectVisibleHOOK, (PVOID*)&CNWSMessage__TestObjectVisibleNEXT, (PVOID)CNWSMessage__TestObjectVisibleORG, 0))
 		_log(0, "* CNWSMessage__TestObjectVisible hooked\n");
 	else _log(0, "X CNWSMessage__TestObjectVisible hook failed\n");
+	*/
 
+	
 	//if (HookCode((PVOID)CNWSCreatureStats__GetEffectImmunityORG, CNWSCreatureStats__GetEffectImmunityHOOK, (PVOID*)&CNWSCreatureStats__GetEffectImmunityNEXT))
 	if (HookFunction(CNWSCreatureStats__GetEffectImmunityHOOK, (PVOID*)&CNWSCreatureStats__GetEffectImmunityNEXT, (PVOID)CNWSCreatureStats__GetEffectImmunityORG, 0))
 		_log(0, "* CNWSCreatureStats__GetEffectImmunity hooked\n");
 	else _log(0, "X CNWSCreatureStats__GetEffectImmunity hook failed\n");
-
+	
+	
 	if (NWNFuncs.bHookRemovePCFromWorld) {
 		if (HookFunction(CServerExoAppInternal__RemovePCFromWorldHOOK, (PVOID*)&CServerExoAppInternal__RemovePCFromWorldNEXT, (PVOID)CServerExoAppInternal__RemovePCFromWorldORG, 2))
 			_log(0, "* CServerExoAppInternal__RemovePCFromWorld hooked; script to run: %s.nss\n", NWNFuncs.OnPlayerLeavingScript);
@@ -138,6 +143,8 @@ void CHookFunctions::HookFunctions() {
 			_log(0, "* CNWSModule__UpdateTime hooked; script to run: %s\n", NWNFuncs.OnTimeOfDayChangeScript);
 		else _log(0, "X CNWSModule__UpdateTime hook failed\n");
 	}
+	
+
 }
 
 
