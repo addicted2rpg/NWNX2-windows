@@ -173,7 +173,7 @@ int CreateGeneralBridge(void **BridgePointer, void *fn, unsigned char *fill, int
 
 
 
-// HOLY RETURN FORMULA: relative_offset = (function_A_trampoline + 6) - (function_A + 6) - 5;
+// HOLY RETURN FORMULA: relative_offset = function_A_trampoline - function_A - 5;
 
 int HookFunction(void *FilterFunction, void **BridgePointer, void *target_fn, int alignment) {
 	unsigned char *previous;

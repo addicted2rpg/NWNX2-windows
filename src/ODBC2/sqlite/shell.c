@@ -1042,7 +1042,7 @@ static int do_meta_command(char *zLine, struct callback_data *p){
     }
     sqlite3_finalize(pStmt);
     if( nCol==0 ) return 0;
-    zSql = malloc( nByte + 20 + nCol*2 );
+    zSql = (char *)malloc( nByte + 20 + nCol*2 );
     if( zSql==0 ) return 0;
     sqlite3_snprintf(nByte+20, zSql, "INSERT INTO '%q' VALUES(?", zTable);
     j = strlen(zSql);
@@ -1065,7 +1065,7 @@ static int do_meta_command(char *zLine, struct callback_data *p){
       sqlite3_finalize(pStmt);
       return 0;
     }
-    azCol = malloc( sizeof(azCol[0])*(nCol+1) );
+    azCol = (char **)malloc( sizeof(azCol[0])*(nCol+1) );
     if( azCol==0 ) return 0;
     sqlite3_exec(p->db, "BEGIN", 0, 0, 0);
     zCommit = "COMMIT";
@@ -1191,10 +1191,10 @@ static int do_meta_command(char *zLine, struct callback_data *p){
 
   if( c=='p' && strncmp(azArg[0], "prompt", n)==0 && (nArg==2 || nArg==3)){
     if( nArg >= 2) {
-      strncpy(mainPrompt,azArg[1],(int)ArraySize(mainPrompt)-1);
+      strncpy_s(mainPrompt, sizeof(mainPrompt), azArg[1],(int)ArraySize(mainPrompt)-1);
     }
     if( nArg >= 3) {
-      strncpy(continuePrompt,azArg[2],(int)ArraySize(continuePrompt)-1);
+		strncpy_s(continuePrompt, sizeof(continuePrompt), azArg[2],(int)ArraySize(continuePrompt)-1);
     }
   }else
 
@@ -1203,7 +1203,8 @@ static int do_meta_command(char *zLine, struct callback_data *p){
   }else
 
   if( c=='r' && strncmp(azArg[0], "read", n)==0 && nArg==2 ){
-    FILE *alt = fopen(azArg[1], "rb");
+    FILE *alt;
+	fopen_s(&alt, azArg[1], "rb");
     if( alt==0 ){
       fprintf(stderr,"can't open \"%s\"\n", azArg[1]);
     }else{
@@ -1473,12 +1474,12 @@ static void process_input(struct callback_data *p, FILE *in){
       for(i=0; zLine[i] && isspace((unsigned char)zLine[i]); i++){}
       if( zLine[i]!=0 ){
         nSql = strlen(zLine);
-        zSql = malloc( nSql+1 );
+        zSql = (char *)malloc( nSql+1 );
         strcpy(zSql, zLine);
       }
     }else{
       int len = strlen(zLine);
-      zSql = realloc( zSql, nSql + len + 2 );
+      zSql = (char *)realloc( zSql, nSql + len + 2 );
       if( zSql==0 ){
         fprintf(stderr,"%s: out of memory!\n", Argv0);
         exit(1);
@@ -1549,7 +1550,7 @@ static char *find_home_dir(void){
 #endif
 
   if( home_dir ){
-    char *z = malloc( strlen(home_dir)+1 );
+    char *z = (char *)malloc( strlen(home_dir)+1 );
     if( z ) strcpy(z, home_dir);
     home_dir = z;
   }
@@ -1576,16 +1577,17 @@ static void process_sqliterc(
       fprintf(stderr,"%s: cannot locate your home directory!\n", Argv0);
       return;
     }
-    zBuf = malloc(strlen(home_dir) + 15);
+    zBuf = (char *)malloc(strlen(home_dir) + 15);
     if( zBuf==0 ){
       fprintf(stderr,"%s: out of memory!\n", Argv0);
       exit(1);
     }
-    sprintf(zBuf,"%s/.sqliterc",home_dir);
+    sprintf_s(zBuf, strlen(home_dir) + 15, "%s/.sqliterc",home_dir);
     free(home_dir);
     sqliterc = (const char*)zBuf;
   }
-  in = fopen(sqliterc,"rb");
+  fopen_s(&in, sqliterc,"rb");
+
   if( in ){
     if( isatty(fileno(stdout)) ){
       printf("Loading resources from %s\n",sqliterc);

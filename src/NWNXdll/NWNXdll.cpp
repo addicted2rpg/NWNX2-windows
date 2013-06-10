@@ -695,9 +695,20 @@ DWORD WINAPI Init(LPVOID lpParam)
 {
 	DWORD SLSHook = FindHook();
 	DWORD GLOHook = FindObjectHook();
-	int SLSAlignment = 1;
-	int GLOAlignment = 0;
 
+	// If you are debugging and wondering what to use for alignment, it's X - 5
+	// So for example you are hooking 005C0380:
+	//.text:005C0380                 push    0FFFFFFFFh
+	//.text:005C0382                 push    offset loc_631448
+	//.text:005C0387                 mov     eax, large fs:0
+	// jump inst + address (5 bytes) would "hose" a portion of the "push offset loc_631448" because it extends to 
+	// 005C0387 and NOT 005C0385.  The jump-back address would execute the partially overwitten op codes at 005C0385
+	// and 005C0386.  So we increase the saved instructions and the jump-back address by +2.  So what you would do 
+	// is pass an alignment of "2" (last argument to HookFunction) to fix this, so 7 instructions get saved instead, 
+	// and the flow of execution returns to the correct spot.  Alignment can never be negative
+	// (for example, we could not "stop" our calculation at 005C0382 because the minimum 5 bytes needed isn't reached)
+	int SLSAlignment = 1;   // needs to be aligned by 1 byte.
+	int GLOAlignment = 0;   // no alignment needed.  Just luck.
 
 
 	strcpy(logFileName, GetLogDir());
