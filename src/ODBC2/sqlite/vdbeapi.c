@@ -38,7 +38,7 @@ double sqlite3_value_double(sqlite3_value *pVal){
   return sqlite3VdbeRealValue((Mem*)pVal);
 }
 int sqlite3_value_int(sqlite3_value *pVal){
-  return sqlite3VdbeIntValue((Mem*)pVal);
+  return (int) sqlite3VdbeIntValue((Mem*)pVal);
 }
 sqlite_int64 sqlite3_value_int64(sqlite3_value *pVal){
   return sqlite3VdbeIntValue((Mem*)pVal);

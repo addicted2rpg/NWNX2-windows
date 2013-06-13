@@ -19,7 +19,6 @@
 #include <ctype.h>
 #include "vdbeInt.h"
 
-
 /*
 ** When debugging the code generator in a symbolic debugger, one can
 ** set the sqlite3_vdbe_addop_trace to 1 and all opcodes will be printed
@@ -398,7 +397,7 @@ static char *displayP3(Op *pOp, char *zTemp, int nTemp){
         if( pColl ){
           int n = strlen(pColl->zName);
           if( i+n>nTemp-6 ){
-            strcpy(&zTemp[i],",...");
+            strcpy(&zTemp[i],",...");			
             break;
           }
           zTemp[i++] = ',';
@@ -429,7 +428,7 @@ static char *displayP3(Op *pOp, char *zTemp, int nTemp){
       char zNum[30];
       sprintf(zTemp, "%.*s", nTemp, pDef->zName);
       sprintf(zNum,"(%d)", pDef->nArg);
-      if( strlen(zTemp)+strlen(zNum)+1<=nTemp ){
+      if( strlen(zTemp)+strlen(zNum)+1<= (size_t) nTemp ){
         strcat(zTemp, zNum);
       }
       zP3 = zTemp;
@@ -693,7 +692,7 @@ void freeAggElem(AggElem *pElem, Agg *pAgg){
       ctx.pFunc = pAgg->apFunc[i];
       ctx.s.flags = MEM_Null;
       ctx.pAgg = pMem->z;
-      ctx.cnt = pMem->i;
+      ctx.cnt = (int) pMem->i;
       ctx.isStep = 0;
       ctx.isError = 0;
       (*pAgg->apFunc[i]->xFinalize)(&ctx);
@@ -1664,9 +1663,9 @@ int sqlite3VdbeRecordCompare(
 
     /* Read the serial types for the next element in each key. */
     idx1 += sqlite3GetVarint32(&aKey1[idx1], &serial_type1);
-    if( d1>=nKey1 && sqlite3VdbeSerialTypeLen(serial_type1)>0 ) break;
+    if( (int)d1 >= nKey1 && sqlite3VdbeSerialTypeLen(serial_type1) > 0 ) break;
     idx2 += sqlite3GetVarint32(&aKey2[idx2], &serial_type2);
-    if( d2>=nKey2 && sqlite3VdbeSerialTypeLen(serial_type2)>0 ) break;
+    if( (int)d2 >= nKey2 && sqlite3VdbeSerialTypeLen(serial_type2)>0 ) break;
 
     /* Assert that there is enough space left in each key for the blob of
     ** data to go with the serial type just read. This assert may fail if
@@ -1692,9 +1691,9 @@ int sqlite3VdbeRecordCompare(
   if( rc==0 ){
     if( pKeyInfo->incrKey ){
       rc = -1;
-    }else if( d1<nKey1 ){
+    }else if( (int) d1< nKey1 ){
       rc = 1;
-    }else if( d2<nKey2 ){
+    }else if( (int) d2 < nKey2 ){
       rc = -1;
     }
   }
@@ -1739,7 +1738,7 @@ int sqlite3VdbeIdxRowid(BtCursor *pCur, i64 *rowid){
   if( nCellKey<=0 ){
     return SQLITE_CORRUPT;
   }
-  rc = sqlite3VdbeMemFromBtree(pCur, 0, nCellKey, 1, &m);
+  rc = sqlite3VdbeMemFromBtree(pCur, 0, (int) nCellKey, 1, &m);
   if( rc ){
     return rc;
   }
@@ -1778,7 +1777,7 @@ int sqlite3VdbeIdxKeyCompare(
     *res = 0;
     return SQLITE_OK;
   }
-  rc = sqlite3VdbeMemFromBtree(pC->pCursor, 0, nCellKey, 1, &m);
+  rc = sqlite3VdbeMemFromBtree(pC->pCursor, 0, (int) nCellKey, 1, &m);
   if( rc ){
     return rc;
   }

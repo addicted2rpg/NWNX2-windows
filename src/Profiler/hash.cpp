@@ -155,7 +155,7 @@ void *insert(char *key, void *data, hash_table *table)
         (table->table)[val] = (bucket *)malloc(sizeof(bucket));
         if ((table->table)[val] == NULL)
 	        return NULL;
-        (table->table)[val]->key = strdup(key);
+        (table->table)[val]->key = _strdup(key);
         (table->table)[val]->next = NULL;
         (table->table)[val]->data = data;
         return (table->table)[val] -> data;
@@ -185,7 +185,7 @@ void *insert(char *key, void *data, hash_table *table)
     ptr = (bucket *)malloc(sizeof(bucket));
     if (ptr == NULL)
 	    return 0;
-    ptr->key = strdup(key);
+    ptr->key = _strdup(key);
     ptr->data = data;
     ptr->next = (table->table)[val];
     (table->table)[val] = ptr;

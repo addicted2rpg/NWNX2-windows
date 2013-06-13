@@ -49,7 +49,7 @@ long CIniFile::ReadLong (LPCSTR lpszSection, LPCSTR lpszKey, long lDefault)
 	char buffer[256];
 	
 	ReadString(lpszSection, lpszKey, buffer, 256, "");
-	if (stricmp(buffer, "") != 0) 
+	if (_stricmp(buffer, "") != 0) 
 		return atol(buffer);	
 	else
 		return lDefault;
@@ -65,9 +65,9 @@ bool CIniFile::ReadBool(LPCSTR lpszSection, LPCSTR lpszKey, bool iDefault)
 {
 	char buffer[256];
 	ReadString(lpszSection, lpszKey, buffer, 256, "");
-	if ((stricmp(buffer, "true") == 0) || 
-		(stricmp(buffer, "yes") == 0) ||
-		(stricmp(buffer, "1") == 0))
+	if ((_stricmp(buffer, "true") == 0) || 
+		(_stricmp(buffer, "yes") == 0) ||
+		(_stricmp(buffer, "1") == 0))
 	{
 		return true;
 	}

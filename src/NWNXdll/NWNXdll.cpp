@@ -533,7 +533,7 @@ void LoadLibraries()
 						fprintf(logFile, "* An error occured during OnCreate of %s\n", moduleName);
 					else
 						fprintf(logFile, "* Plugin %s is loaded.\n", moduleName);
-					Libraries.Insert(strupr(moduleName), pBase);
+					Libraries.Insert(_strupr(moduleName), pBase);
 				}
 				else
 					fprintf(logFile, "* Could not create an instance of plugin %s", moduleName);
@@ -564,7 +564,7 @@ char* GetLogDir()
 		while (iDirectory < 100)
 		{
 			strcpy(tmpFileName, "logs.");
-			itoa(iDirectory, tmpNo, 10);
+			_itoa(iDirectory, tmpNo, 10);
 			strcat(tmpFileName, tmpNo);
 			strcat(tmpFileName, "\\nwserverlog1.txt");
 

@@ -797,7 +797,7 @@ int sqlite3PutVarint(unsigned char *p, u64 v){
   int i, j, n;
   u8 buf[10];
   if( v & 0xff00000000000000 ){
-    p[8] = v;
+    p[8] = (unsigned char) v;
     v >>= 8;
     for(i=7; i>=0; i--){
       p[i] = (v & 0x7f) | 0x80;

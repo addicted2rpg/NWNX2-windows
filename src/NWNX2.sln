@@ -3,13 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NWNX2", "NWNX2\NWNX2.vcxproj", "{13E19FA7-56B2-479C-5CD3-D25E4DE0FF63}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NWNXdll", "NWNXdll\NWNXdll.vcxproj", "{08A66313-24FA-CB28-B8D8-D8960A0FA617}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NWNXdll", "NWNXdll.vcxproj", "{08A66313-24FA-CB28-B8D8-D8960A0FA617}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Odbc2", "Odbc2.vcxproj", "{E452C7EB-B04B-485A-86D4-E2AA5ED7B196}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nwnx_funcs", "NWNX_Functions\funcs.vcxproj", "{96733211-6B5E-4B2B-972F-33C6D378F861}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Profiler", "Profiler.vcxproj", "{C4E8B9C0-426F-4D3F-9661-0563A03A21AC}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "time", "time.vcxproj", "{DCB0A985-0060-4762-3FE9-4A63B7B2F09E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -121,6 +123,24 @@ Global
 		{C4E8B9C0-426F-4D3F-9661-0563A03A21AC}.test|Win32.ActiveCfg = Release|Win32
 		{C4E8B9C0-426F-4D3F-9661-0563A03A21AC}.test|Win32.Build.0 = Release|Win32
 		{C4E8B9C0-426F-4D3F-9661-0563A03A21AC}.test|x64.ActiveCfg = Release|Win32
+		{DCB0A985-0060-4762-3FE9-4A63B7B2F09E}.DBG|Win32.ActiveCfg = Debug|Win32
+		{DCB0A985-0060-4762-3FE9-4A63B7B2F09E}.DBG|Win32.Build.0 = Debug|Win32
+		{DCB0A985-0060-4762-3FE9-4A63B7B2F09E}.DBG|x64.ActiveCfg = Debug|Win32
+		{DCB0A985-0060-4762-3FE9-4A63B7B2F09E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DCB0A985-0060-4762-3FE9-4A63B7B2F09E}.Debug|Win32.Build.0 = Debug|Win32
+		{DCB0A985-0060-4762-3FE9-4A63B7B2F09E}.Debug|x64.ActiveCfg = Debug|Win32
+		{DCB0A985-0060-4762-3FE9-4A63B7B2F09E}.Release|Win32.ActiveCfg = Release|Win32
+		{DCB0A985-0060-4762-3FE9-4A63B7B2F09E}.Release|Win32.Build.0 = Release|Win32
+		{DCB0A985-0060-4762-3FE9-4A63B7B2F09E}.Release|x64.ActiveCfg = Release|Win32
+		{DCB0A985-0060-4762-3FE9-4A63B7B2F09E}.Server_specific|Win32.ActiveCfg = Release|Win32
+		{DCB0A985-0060-4762-3FE9-4A63B7B2F09E}.Server_specific|Win32.Build.0 = Release|Win32
+		{DCB0A985-0060-4762-3FE9-4A63B7B2F09E}.Server_specific|x64.ActiveCfg = Release|Win32
+		{DCB0A985-0060-4762-3FE9-4A63B7B2F09E}.Template|Win32.ActiveCfg = Release|Win32
+		{DCB0A985-0060-4762-3FE9-4A63B7B2F09E}.Template|Win32.Build.0 = Release|Win32
+		{DCB0A985-0060-4762-3FE9-4A63B7B2F09E}.Template|x64.ActiveCfg = Release|Win32
+		{DCB0A985-0060-4762-3FE9-4A63B7B2F09E}.test|Win32.ActiveCfg = Release|Win32
+		{DCB0A985-0060-4762-3FE9-4A63B7B2F09E}.test|Win32.Build.0 = Release|Win32
+		{DCB0A985-0060-4762-3FE9-4A63B7B2F09E}.test|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

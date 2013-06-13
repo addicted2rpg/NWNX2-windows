@@ -71,11 +71,16 @@ BOOL CNWNX2App::InitInstance()
 	//  of your final executable, you should remove from the following
 	//  the specific initialization routines you do not need.
 
+/*
+Addicted - As of 2013, it looks like this function is no longer necessary:
+
 #ifdef _AFXDLL
 	Enable3dControls();			// Call this when using MFC in a shared DLL
 #else
 	Enable3dControlsStatic();	// Call this when linking to MFC statically
 #endif
+*/
+
 	
 	// set default values and parse ini file
 	parseIniFile();
@@ -120,19 +125,19 @@ void CNWNX2App::parseNWNCmdLine()
 {
 	CmdLineArgs args;
 
-	for (int i = 0; i < args.size(); i++)
+	for (int i = 0; i < (int) args.size(); i++)
 	{
-		if (stricmp(args[i], "-port") == 0)
+		if (_stricmp(args[i], "-port") == 0)
 		{
 			dlg.m_intServerPort = atoi(args[i+1]);
 			i++;
 		}
-		else if (stricmp(args[i], "-module") == 0)
+		else if (_stricmp(args[i], "-module") == 0)
 		{
 			dlg.m_strModuleName = args[i+1];
 			i++;
 		}
-		else if (stricmp(args[i], "-processwatchdog") == 0)
+		else if (_stricmp(args[i], "-processwatchdog") == 0)
 		{
 			if (atoi(args[i+1]) == 0)
 				dlg.m_boolWatchdogProcess = false;
@@ -140,12 +145,12 @@ void CNWNX2App::parseNWNCmdLine()
 				dlg.m_boolWatchdogProcess = true;
 			i++;
 		}
-		else if (stricmp(args[i], "-processinterval") == 0)
+		else if (_stricmp(args[i], "-processinterval") == 0)
 		{
 			dlg.m_intUpdateIntervalProcess = atoi(args[i+1]);
 			i++;
 		}
-		else if (stricmp(args[i], "-gamespywatchdog") == 0)
+		else if (_stricmp(args[i], "-gamespywatchdog") == 0)
 		{
 			if (atoi(args[i+1]) == 0)
 				dlg.m_boolWatchdogGamespy = false;
@@ -153,30 +158,30 @@ void CNWNX2App::parseNWNCmdLine()
 				dlg.m_boolWatchdogGamespy = true;
 			i++;
 		}
-		else if (stricmp(args[i], "-gamespyinterval") == 0)
+		else if (_stricmp(args[i], "-gamespyinterval") == 0)
 		{
 			dlg.m_intUpdateIntervalGamespy = atoi(args[i+1]);
 			i++;
 		}
-		else if (stricmp(args[i], "-gamespyretries") == 0)
+		else if (_stricmp(args[i], "-gamespyretries") == 0)
 		{
 			dlg.m_intGamespyRetries = atoi(args[i+1]);
 			i++;
 		}
-		else if (stricmp(args[i], "-oldgamespyprotocol") == 0)
+		else if (_stricmp(args[i], "-oldgamespyprotocol") == 0)
 		{
 			if (atoi(args[i+1]) == 1)
 				dlg.m_boolOldGamespyProtocol = true;
 			i++;
 		}
-		else if (stricmp(args[i], "-publicserver") == 0)
+		else if (_stricmp(args[i], "-publicserver") == 0)
 		{
 			if (atoi(args[i+1]) == 0)
 				dlg.m_boolWatchdogGamespy = false;
 			strcat(cmdline, args[i]);
 			strcat(cmdline, " ");
 		}
-		else if (stricmp(args[i], "-restartdelay") == 0)
+		else if (_stricmp(args[i], "-restartdelay") == 0)
 		{
 			dlg.m_intRestartDelay = atoi(args[i+1]);
 			i++;
@@ -189,7 +194,7 @@ void CNWNX2App::parseNWNCmdLine()
 	}
 
 	char port[6];
-	itoa(dlg.m_intServerPort, port, 10);
+	_itoa(dlg.m_intServerPort, port, 10);
 	strcat(cmdline, "-port ");
 	strcat(cmdline, port);
 

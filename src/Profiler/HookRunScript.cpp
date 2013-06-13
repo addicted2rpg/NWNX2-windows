@@ -86,7 +86,7 @@ void FlushStatistics(DWORD dwStatisticMsec)
 	if (ftell(profiler.m_fFile) > profiler.m_maxLogSizeKB)
 	{	
 		fclose(profiler.m_fFile);
-		profiler.m_fFile = fopen (profiler.m_LogFile, "w+");
+		fopen_s(&(profiler.m_fFile), profiler.m_LogFile, "w+");
 		profiler.WriteLogHeader();
 		fprintf(profiler.m_fFile, "* Logfile hit maximum size limit, starting again.\n");
 	}
@@ -161,7 +161,7 @@ void myRunScript(char *str)
 			fprintf(profiler.m_fFile, "Maximum call depth reached!\n");
 
 		emptyScript = false;
-		strncpy(scriptName[iCallDepth], str, 16);
+		strncpy_s(scriptName[iCallDepth], 17, str, 16);
 		scriptName[iCallDepth][16] = 0x0;
 		iScriptCounter++;
 
@@ -188,7 +188,7 @@ void myRunScriptPart(char *str)
 		emptyScript = false;
 		scriptName[iCallDepth][0] = '>';
 		scriptName[iCallDepth][1] = 0x0;
-		strncat(scriptName[iCallDepth], str, 15);
+		strncat_s(scriptName[iCallDepth], 17, str, 15);
 		scriptName[iCallDepth][16] = 0x0;
 		iScriptCounter++;
 
@@ -307,7 +307,7 @@ void MyCrossArea(char *gameObject)
 		emptyScript = false;
 		scriptName[iCallDepth][0] = '@';
 		scriptName[iCallDepth][1] = 0x0;
-		strncat(scriptName[iCallDepth], tag, 15);
+		strncat_s(scriptName[iCallDepth], 17, tag, 15);
 		scriptName[iCallDepth][16] = 0x0;
 		iScriptCounter++;
 
@@ -420,7 +420,7 @@ void MyPathfind(char *gameArea)
 		emptyScript = false;
 		scriptName[iCallDepth][0] = '$';
 		scriptName[iCallDepth][1] = 0x0;
-		strncat(scriptName[iCallDepth], tag, 15);
+		strncat_s(scriptName[iCallDepth], 17, tag, 15);
 		scriptName[iCallDepth][16] = 0x0;
 		iScriptCounter++;
 

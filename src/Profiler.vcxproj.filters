@@ -1,24 +1,22 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="..\src\Profiler\hash.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="NWNXdll\HashTable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NWNXdll\hook_funcs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\src\Profiler\HookRunScript.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NWNXdll\IniFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NWNXdll\NWNXBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Profiler\NWNXProfiler.cpp">
@@ -30,27 +28,24 @@
     <ClCompile Include="..\src\Profiler\StdAfx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="NWNXdll\hook_funcs.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="NWNXdll\IniFile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="NWNXdll\NWNXBase.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="NWNXdll\HashTable.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\Profiler\hash.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Profiler\StdAfx.h">
+    <ClInclude Include="NWNXdll\HashTable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NWNXdll\hook_funcs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Profiler\HookRunScript.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NWNXdll\IniFile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NWNXdll\NWNXBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Profiler\NWNXProfiler.h">
@@ -62,18 +57,20 @@
     <ClInclude Include="..\src\Profiler\resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="NWNXdll\hook_funcs.h">
+    <ClInclude Include="..\src\Profiler\StdAfx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="NWNXdll\IniFile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="NWNXdll\NWNXBase.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="NWNXdll\HashTable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{b14a715a-0c39-4b80-9985-dc8668914ee4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{8493daad-ec18-409d-ae8c-c1feefc1d0df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{4166dcd4-32e0-4854-88c7-21957e800cb3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\src\Profiler\Profiler.rc">

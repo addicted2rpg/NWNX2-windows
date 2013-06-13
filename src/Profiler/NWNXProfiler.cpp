@@ -42,7 +42,7 @@ BOOL CNWNXProfiler::OnCreate (const char* LogDir)
 {
 	// call the base class function
 	char log[MAX_PATH];
-	sprintf (log, "%s\\nwnx_profiler.txt", LogDir);
+	sprintf_s(log, sizeof(char) * MAX_PATH, "%s\\nwnx_profiler.txt", LogDir);
 	if (!CNWNXBase::OnCreate(log))
 		return false;
 

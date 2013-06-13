@@ -221,12 +221,12 @@ bool CNWNXODBC::LoadConfiguration ()
 
 	// see what mode should be used
 	iniFile.ReadString ("ODBC2", "source", buffer, 256, "ODBC");
-	if (stricmp (buffer, "ODBC") == 0) {
+	if (_stricmp (buffer, "ODBC") == 0) {
 		iniFile.ReadString ("ODBC2", "dsn", buffer, 256, "nwn");
-		p.server = strdup (buffer);
+		p.server = _strdup (buffer);
 		dbType = dbODBC;
 	}
-	else if (stricmp (buffer, "MYSQL") == 0) {
+	else if (_stricmp (buffer, "MYSQL") == 0) {
 		// load in the settings for a direct mysql connection
 		iniFile.ReadString ("ODBC2", "server", buffer, 256, "localhost");
 		p.server = _strdup (buffer);
@@ -238,7 +238,7 @@ bool CNWNXODBC::LoadConfiguration ()
 		p.db = _strdup (buffer);
 		dbType = dbMYSQL;
 	}
-	else if (stricmp (buffer, "SQLITE") == 0) {
+	else if (_stricmp (buffer, "SQLITE") == 0) {
 		// load in the settings for the internal database
 		dbType = dbSQLITE;
 		iniFile.ReadString ("ODBC2", "file", buffer, 256, "");
@@ -252,7 +252,7 @@ bool CNWNXODBC::LoadConfiguration ()
 
 	// check if scorco should be hooked
 	iniFile.ReadString ("ODBC2", "hookscorco", buffer, 256, "");
-	if (stricmp (buffer, "false") == 0)
+	if (_stricmp (buffer, "false") == 0)
 		hookScorco = false;
 
 	return true;

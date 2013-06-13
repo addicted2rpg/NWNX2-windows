@@ -466,14 +466,14 @@ int sqlite3MemCompare(const Mem *pMem1, const Mem *pMem2, const CollSeq *pColl){
     if( (f1 & f2 & MEM_Int)==0 ){
       double r1, r2;
       if( (f1&MEM_Real)==0 ){
-        r1 = pMem1->i;
+        r1 = (double) pMem1->i;
       }else{
-        r1 = pMem1->r;
+        r1 = (double) pMem1->r;
       }
       if( (f2&MEM_Real)==0 ){
-        r2 = pMem2->i;
+        r2 = (double) pMem2->i;
       }else{
-        r2 = pMem2->r;
+        r2 = (double) pMem2->r;
       }
       if( r1<r2 ) return -1;
       if( r1>r2 ) return 1;

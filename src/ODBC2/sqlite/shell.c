@@ -21,6 +21,8 @@
 #include "sqlite3.h"
 #include <ctype.h>
 
+extern int access(const char *path, int amode);
+
 #if !defined(_WIN32) && !defined(WIN32) && !defined(__MACOS__)
 # include <signal.h>
 # include <pwd.h>
@@ -50,7 +52,7 @@
 
 /* Make sure isatty() has a prototype.
 */
-extern int isatty();
+extern int isatty(int);
 
 /*
 ** The following is the open SQLite database.  We make a pointer
@@ -1589,7 +1591,7 @@ static void process_sqliterc(
   fopen_s(&in, sqliterc,"rb");
 
   if( in ){
-    if( isatty(fileno(stdout)) ){
+    if( isatty(_fileno(stdout)) ){
       printf("Loading resources from %s\n",sqliterc);
     }
     process_input(p,in);
@@ -1691,6 +1693,15 @@ int main(int argc, char **argv){
   ** files from being created if a user mistypes the database name argument
   ** to the sqlite command-line tool.
   */
+  /*
+  #ifdef __WIN__
+extern int my_access(const char *path, int amode);
+extern File my_sopen(const char *path, int oflag, int shflag, int pmode);
+#else
+#define my_access access
+#endif
+*/
+
   if( access(data.zDbFilename, 0)==0 ){
     open_db(&data);
   }
@@ -1760,7 +1771,7 @@ int main(int argc, char **argv){
   }else{
     /* Run commands received from standard input
     */
-    if( isatty(fileno(stdout)) && isatty(fileno(stdin)) ){
+    if( isatty(_fileno(stdout)) && isatty(_fileno(stdin)) ){
       char *zHome;
       char *zHistory = 0;
       printf(
@@ -1769,7 +1780,7 @@ int main(int argc, char **argv){
         sqlite3_libversion()
       );
       zHome = find_home_dir();
-      if( zHome && (zHistory = malloc(strlen(zHome)+20))!=0 ){
+      if( zHome && (zHistory = (char *)malloc(strlen(zHome)+20))!=0 ){
         sprintf(zHistory,"%s/.sqlite_history", zHome);
       }
       if( zHistory ) read_history(zHistory);

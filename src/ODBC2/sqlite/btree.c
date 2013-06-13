@@ -447,7 +447,7 @@ static void parseCellPtr(
   pInfo->nHeader = n;
   pInfo->nData = nPayload;
   if( !pPage->intKey ){
-    nPayload += pInfo->nKey;
+    nPayload += (u32) pInfo->nKey;
   }
   if( nPayload<=pPage->maxLocal ){
     /* This is the (easy) common case where the entire payload fits
@@ -1780,13 +1780,13 @@ static int getPayload(
   if( pPage->intKey ){
     nKey = 0;
   }else{
-    nKey = pCur->info.nKey;
+    nKey = (u32) pCur->info.nKey;
   }
   assert( offset>=0 );
   if( skipKey ){
     offset += nKey;
   }
-  if( offset+amt > nKey+pCur->info.nData ){
+  if( offset+amt > (int) (nKey+pCur->info.nData) ){
     return SQLITE_ERROR;
   }
   if( offset<pCur->info.nLocal ){
@@ -1914,14 +1914,14 @@ static const unsigned char *fetchPayload(
   if( pPage->intKey ){
     nKey = 0;
   }else{
-    nKey = pCur->info.nKey;
+    nKey = (u32) pCur->info.nKey;
   }
   if( skipKey ){
     aPayload += nKey;
     nLocal = pCur->info.nLocal - nKey;
   }else{
     nLocal = pCur->info.nLocal;
-    if( nLocal>nKey ){
+    if( nLocal> (int) nKey ){
       nLocal = nKey;
     }
   }
@@ -2210,12 +2210,12 @@ int sqlite3BtreeMoveto(BtCursor *pCur, const void *pKey, i64 nKey, int *pRes){
         int available;
         pCellKey = (void *)fetchPayload(pCur, &available, 0);
         if( available>=nCellKey ){
-          c = pCur->xCompare(pCur->pArg, nCellKey, pCellKey, nKey, pKey);
+          c = pCur->xCompare(pCur->pArg, (int) nCellKey, pCellKey, (int) nKey, pKey);
         }else{
-          pCellKey = sqliteMallocRaw( nCellKey );
+          pCellKey = sqliteMallocRaw( (int) nCellKey );
           if( pCellKey==0 ) return SQLITE_NOMEM;
-          rc = sqlite3BtreeKey(pCur, 0, nCellKey, (void *)pCellKey);
-          c = pCur->xCompare(pCur->pArg, nCellKey, pCellKey, nKey, pKey);
+          rc = sqlite3BtreeKey(pCur, (u32) 0, (u32) nCellKey, (void *)pCellKey);
+          c = pCur->xCompare(pCur->pArg, (int) nCellKey, pCellKey, (int) nKey, pKey);
           sqliteFree(pCellKey);
           if( rc ) return rc;
         }
@@ -2447,7 +2447,7 @@ static int allocatePage(Btree *pBt, MemPage **ppPage, Pgno *pPgno, Pgno nearby){
         closest = 0;
       }
       *pPgno = get4byte(&aData[8+closest*4]);
-      if( *pPgno>sqlite3pager_pagecount(pBt->pPager) ){
+      if( (int)(*pPgno) > sqlite3pager_pagecount(pBt->pPager) ){
         /* Free page off the end of the file */
         return SQLITE_CORRUPT; /* bkpt-CORRUPT */
       }
@@ -2617,9 +2617,9 @@ static int fillInCell(
     nSrc = nData;
     nData = 0;
   }else{
-    nPayload += nKey;
+    nPayload += (int) nKey;
     pSrc = pKey;
-    nSrc = nKey;
+    nSrc = (int) nKey;
   }
   *pnSize = info.nSize;
   spaceLeft = info.nLocal;
@@ -4222,7 +4222,7 @@ static int checkTreePage(
     pCell = findCell(pPage,i);
     parseCellPtr(pPage, pCell, &info);
     sz = info.nData;
-    if( !pPage->intKey ) sz += info.nKey;
+    if( !pPage->intKey ) sz += (int) info.nKey;
     if( sz>info.nLocal ){
       int nPage = (sz - info.nLocal + usableSize - 5)/(usableSize - 4);
       checkList(pCheck, 0, get4byte(&pCell[info.iOverflow]),nPage,zContext);

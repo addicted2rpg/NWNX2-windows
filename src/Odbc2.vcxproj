@@ -37,7 +37,7 @@
     <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutputPath)..\..\Distribution\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='DBG|Win32'">E:\NeverwinterNights\NWN\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\Release\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\Intermediate\ODBC2\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='DBG|Win32'">DBG\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='DBG|Win32'">false</LinkIncremental>
@@ -47,12 +47,13 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;ODBC_EXPORTS;NO_TCL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_WINDOWS;_USRDLL;ODBC_EXPORTS;NO_TCL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <AdditionalIncludeDirectories>$(SolutionDir)ODBC2;$(SolutionDir)ODBC2\sqlite;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <ProgramDataBaseFileName>$(IntDir)ODBC2.pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
       <AdditionalDependencies>mysqlclient.lib;Ws2_32.lib;odbc32.lib;odbccp32.lib;Advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -61,7 +62,7 @@
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <ImportLibrary>$(SolutoinDir)\Release\nwnx_odbc</ImportLibrary>
+      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
       <AdditionalLibraryDirectories>$(SolutionDir)ODBC2\mysql;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -143,32 +144,32 @@
     <ClCompile Include="ODBC2\sqlite\where.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="sqlite\btree.h" />
-    <ClInclude Include="sqlite\config.h" />
+    <ClInclude Include="ODBC2\sqlite\btree.h" />
+    <ClInclude Include="ODBC2\sqlite\config.h" />
     <ClInclude Include="ODBC2\db.h" />
-    <ClInclude Include="sqlite\hash.h" />
-    <ClInclude Include="..\NWNXdll\IniFile.h" />
+    <ClInclude Include="ODBC2\sqlite\hash.h" />
+    <ClInclude Include="NWNXdll\IniFile.h" />
     <ClInclude Include="ODBC2\mysql.h" />
-    <ClInclude Include="..\NWNXdll\NWNXBase.h" />
-    <ClInclude Include="NWNXOdbc.h" />
-    <ClInclude Include="Odbc.h" />
-    <ClInclude Include="ODBC1.h" />
-    <ClInclude Include="sqlite\opcodes.h" />
-    <ClInclude Include="sqlite\os.h" />
-    <ClInclude Include="sqlite\os_common.h" />
-    <ClInclude Include="sqlite\os_mac.h" />
-    <ClInclude Include="sqlite\os_unix.h" />
-    <ClInclude Include="sqlite\os_win.h" />
-    <ClInclude Include="sqlite\pager.h" />
-    <ClInclude Include="sqlite\parse.h" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="scorcohook.h" />
-    <ClInclude Include="sqlite.h" />
-    <ClInclude Include="sqlite\sqlite3.h" />
-    <ClInclude Include="sqlite\sqliteInt.h" />
-    <ClInclude Include="StdAfx.h" />
-    <ClInclude Include="sqlite\vdbe.h" />
-    <ClInclude Include="sqlite\vdbeInt.h" />
+    <ClInclude Include="NWNXdll\NWNXBase.h" />
+    <ClInclude Include="ODBC2\NWNXOdbc.h" />
+    <ClInclude Include="ODBC2\Odbc.h" />
+    <ClInclude Include="ODBC2\ODBC1.h" />
+    <ClInclude Include="ODBC2\sqlite\opcodes.h" />
+    <ClInclude Include="ODBC2\sqlite\os.h" />
+    <ClInclude Include="ODBC2\sqlite\os_common.h" />
+    <ClInclude Include="ODBC2\sqlite\os_mac.h" />
+    <ClInclude Include="ODBC2\sqlite\os_unix.h" />
+    <ClInclude Include="ODBC2\sqlite\os_win.h" />
+    <ClInclude Include="ODBC2\sqlite\pager.h" />
+    <ClInclude Include="ODBC2\sqlite\parse.h" />
+    <ClInclude Include="ODBC2\resource.h" />
+    <ClInclude Include="ODBC2\scorcohook.h" />
+    <ClInclude Include="ODBC2\sqlite.h" />
+    <ClInclude Include="ODBC2\sqlite\sqlite3.h" />
+    <ClInclude Include="ODBC2\sqlite\sqliteInt.h" />
+    <ClInclude Include="ODBC2\StdAfx.h" />
+    <ClInclude Include="ODBC2\sqlite\vdbe.h" />
+    <ClInclude Include="ODBC2\sqlite\vdbeInt.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

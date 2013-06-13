@@ -285,7 +285,7 @@ static void applyAffinity(Mem *pRec, char affinity, u8 enc){
     if( affinity==SQLITE_AFF_INTEGER ){
       /* For INTEGER affinity, try to convert a real value to an int */
       if( (pRec->flags&MEM_Real) && !(pRec->flags&MEM_Int) ){
-        pRec->i = pRec->r;
+        pRec->i = (i64) pRec->r;
         if( ((double)pRec->i)==pRec->r ){
           pRec->flags |= MEM_Int;
         }
@@ -1223,8 +1223,8 @@ case OP_ShiftRight: {           /* same as TK_RSHIFT */
     pTos->flags = MEM_Null;
     break;
   }
-  a = sqlite3VdbeIntValue(pNos);
-  b = sqlite3VdbeIntValue(pTos);
+  a = (int) sqlite3VdbeIntValue(pNos);
+  b = (int) sqlite3VdbeIntValue(pTos);
   switch( pOp->opcode ){
     case OP_BitAnd:      a &= b;     break;
     case OP_BitOr:       a |= b;     break;
@@ -1275,7 +1275,7 @@ case OP_ForceInt: {
     break;
   }
   if( pTos->flags & MEM_Int ){
-    v = pTos->i + (pOp->p1!=0);
+    v = (int) ( pTos->i + (pOp->p1!=0) );
   }else{
     Realify(pTos);
     v = (int)pTos->r;
@@ -1588,7 +1588,7 @@ case OP_IfNot: {
   if( pTos->flags & MEM_Null ){
     c = pOp->p1;
   }else{
-    c = sqlite3VdbeIntValue(pTos);
+    c = (int) sqlite3VdbeIntValue(pTos);
     if( pOp->opcode==OP_IfNot ) c = !c;
   }
   Release(pTos);
@@ -1723,7 +1723,7 @@ case OP_Column: {
     zRec = pRec->z;
     assert( pCnt>=p->aStack );
     assert( pCnt->flags & MEM_Int );
-    nField = pCnt->i;
+    nField = (u32) pCnt->i;
     pCrsr = 0;
   }else if( (pC = p->apCsr[p1])->pCursor!=0 ){
     /* The record is stored in a B-Tree */
@@ -1738,7 +1738,7 @@ case OP_Column: {
     }else if( pC->keyAsData ){
       i64 payloadSize64;
       sqlite3BtreeKeySize(pCrsr, &payloadSize64);
-      payloadSize = payloadSize64;
+      payloadSize = (u32) payloadSize64;
     }else{
       sqlite3BtreeDataSize(pCrsr, &payloadSize);
     }
@@ -1798,8 +1798,9 @@ case OP_Column: {
       ** having to make additional calls to fetch the content portion of
       ** the record.
       */
-      if( avail>=payloadSize ){
-        zRec = pC->aRow = zData;
+      if( avail >= (int) payloadSize ){
+		pC->aRow = (u8 *) zData;
+        zRec = (char *)pC->aRow;
       }else{
         pC->aRow = 0;
       }
@@ -1813,7 +1814,7 @@ case OP_Column: {
     ** in the B-Tree.  When that happens, use sqlite3VdbeMemFromBtree() to
     ** acquire the complete header text.
     */
-    if( !zRec && avail<szHdr ){
+    if( !zRec && avail < (int) szHdr ){
       rc = sqlite3VdbeMemFromBtree(pCrsr, 0, szHdr, pC->keyAsData, &sMem);
       if( rc!=SQLITE_OK ){
         goto abort_due_to_error;
@@ -1828,7 +1829,7 @@ case OP_Column: {
     */
     offset = szHdr;
     i = 0;
-    while( idx<szHdr && i<nField && offset<=payloadSize ){
+    while( idx< (int)szHdr && i < (int)nField && offset<= (int)payloadSize ){
       aOffset[i] = offset;
       idx += sqlite3GetVarint32(&zData[idx], &aType[i]);
       offset += sqlite3VdbeSerialTypeLen(aType[i]);
@@ -2237,7 +2238,7 @@ case OP_SetCookie: {
   rc = sqlite3BtreeUpdateMeta(pDb->pBt, 1+pOp->p2, (int)pTos->i);
   if( pOp->p2==0 ){
     /* When the schema cookie changes, record the new cookie internally */
-    pDb->schema_cookie = pTos->i;
+    pDb->schema_cookie = (int) pTos->i;
     db->flags |= SQLITE_InternChanges;
   }
   assert( (pTos->flags & MEM_Dyn)==0 );
@@ -2332,7 +2333,7 @@ case OP_OpenWrite: {
   
   assert( pTos>=p->aStack );
   Integerify(pTos);
-  iDb = pTos->i;
+  iDb = (int) pTos->i;
   assert( (pTos->flags & MEM_Dyn)==0 );
   pTos--;
   assert( iDb>=0 && iDb<db->nDb );
@@ -2342,7 +2343,7 @@ case OP_OpenWrite: {
   if( p2<=0 ){
     assert( pTos>=p->aStack );
     Integerify(pTos);
-    p2 = pTos->i;
+    p2 = (int) pTos->i;
     assert( (pTos->flags & MEM_Dyn)==0 );
     pTos--;
     if( p2<2 ){
@@ -3112,7 +3113,7 @@ case OP_RowData: {
       i64 n64;
       assert( !pC->intKey );
       sqlite3BtreeKeySize(pCrsr, &n64);
-      n = n64;
+      n = (u32) n64;
     }else{
       sqlite3BtreeDataSize(pCrsr, &n);
     }
@@ -3210,7 +3211,7 @@ case OP_FullKey: {
       goto abort_due_to_error;
     }
     if( amt>NBFS ){
-      z = sqliteMallocRaw( amt );
+      z = (char *)sqliteMallocRaw( (int) amt );
       if( z==0 ) goto no_mem;
       pTos->flags = MEM_Blob | MEM_Dyn;
       pTos->xDel = 0;
@@ -3218,9 +3219,9 @@ case OP_FullKey: {
       z = pTos->zShort;
       pTos->flags = MEM_Blob | MEM_Short;
     }
-    sqlite3BtreeKey(pCrsr, 0, amt, z);
+    sqlite3BtreeKey(pCrsr, (u32) 0, (u32) amt, z);
     pTos->z = z;
-    pTos->n = amt;
+    pTos->n = (int) amt;
   }
   break;
 }
@@ -3764,7 +3765,7 @@ case OP_IntegrityCk: {
   if( aRoot==0 ) goto no_mem;
   for(j=0; j<nRoot; j++){
     Mem *pMem = &pTos[-j];
-    aRoot[j] = pMem->i;
+    aRoot[j] = (int) pMem->i;
   }
   aRoot[j] = 0;
   popStack(&pTos, nRoot);
@@ -3885,11 +3886,11 @@ case OP_ContextPush: {
   /* FIX ME: This should be allocated as part of the vdbe at compile-time */
   if( i>=p->contextStackDepth ){
     p->contextStackDepth = i+1;
-    p->contextStack = sqliteRealloc(p->contextStack, sizeof(Context)*(i+1));
+    p->contextStack = (Context *)sqliteRealloc(p->contextStack, sizeof(Context)*(i+1));
     if( p->contextStack==0 ) goto no_mem;
   }
   pContext = &p->contextStack[i];
-  pContext->lastRowid = db->lastRowid;
+  pContext->lastRowid = (int) db->lastRowid;
   pContext->nChange = p->nChange;
   pContext->pList = p->pList;
   p->pList = 0;
@@ -4141,13 +4142,13 @@ case OP_AggFunc: {
     apVal[i] = pRec;
     storeTypeInfo(pRec, db->enc);
   }
-  i = pTos->i;
+  i = (int) pTos->i;
   assert( i>=0 && i<p->agg.nMem );
   ctx.pFunc = (FuncDef*)pOp->p3;
   pMem = &p->agg.pCurrent->aMem[i];
   ctx.s.z = pMem->zShort;  /* Space used for small aggregate contexts */
   ctx.pAgg = pMem->z;
-  ctx.cnt = ++pMem->i;
+  ctx.cnt = (int) (++pMem->i);
   ctx.isError = 0;
   ctx.isStep = 1;
   ctx.pColl = 0;
@@ -4298,11 +4299,11 @@ case OP_AggNext: {
       ctx.s.flags = MEM_Null;
       ctx.s.z = pMem->zShort;
       ctx.pAgg = (void*)pMem->z;
-      ctx.cnt = pMem->i;
+      ctx.cnt = (int) pMem->i;
       ctx.isStep = 0;
       ctx.pFunc = pFunc;
       pFunc->xFinalize(&ctx);
-      pMem->z = ctx.pAgg;
+      pMem->z = (char *) ctx.pAgg;
       if( pMem->z && pMem->z!=pMem->zShort ){
         sqliteFree( pMem->z );
       }

@@ -335,7 +335,7 @@ int sqlite3OsTruncate(OsFile *id, i64 nByte){
   assert( id->isOpen );
   TRACE3("TRUNCATE %d %lld\n", id->h, nByte);
   SimulateIOError(SQLITE_IOERR);
-  SetFilePointer(id->h, nByte, &upperBits, FILE_BEGIN);
+  SetFilePointer(id->h, (LONG) nByte, &upperBits, FILE_BEGIN);
   SetEndOfFile(id->h);
   return SQLITE_OK;
 }

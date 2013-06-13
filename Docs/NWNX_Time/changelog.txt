@@ -1,0 +1,6 @@
+Changelog for Time Plugin
+
+* 12.01.2004: v1.0
+- Initial release under the GPL (see licence.txt)
+
+

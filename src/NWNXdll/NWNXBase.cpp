@@ -46,8 +46,8 @@ CNWNXBase::~CNWNXBase()
 BOOL CNWNXBase::OnCreate(const char* LogFile)
 {
 	// try to open the log file
-	m_LogFile = strdup(LogFile);
-	m_fFile = fopen (LogFile, "w");
+	m_LogFile = _strdup(LogFile);
+	fopen_s(&m_fFile, LogFile, "w");
 	return (m_fFile != NULL);
 }
 
@@ -75,14 +75,14 @@ void CNWNXBase::Log(const char *pcMsg, ...)
 		if (ftell(m_fFile) > m_maxLogSizeKB)
 		{	
 			fclose(m_fFile);
-			m_fFile = fopen (m_LogFile, "w");
+			fopen_s(&m_fFile, m_LogFile, "w");
 			WriteLogHeader();
 			fprintf(m_fFile, "o Logfile hit maximum size limit, starting again.\n");
 		}
 
 		// build up the string
 		va_start(argList, pcMsg);
-		vsprintf(acBuffer, pcMsg, argList);
+		vsprintf_s(acBuffer, 65535, pcMsg, argList);
 		va_end(argList);
 
 		// replace any percent signs
@@ -108,7 +108,7 @@ void CNWNXBase::Log(int priority, const char *pcMsg, ...)
 	{  
 		// build up the string
 		va_start(argList, pcMsg);
-		_vsnprintf(acBuffer, 2047, pcMsg, argList);
+		_vsnprintf_s(acBuffer, sizeof(char)*2048, 2047, pcMsg, argList);
 		acBuffer[2047] = 0;
 		va_end(argList);
 

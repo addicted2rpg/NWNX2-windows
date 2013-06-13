@@ -42,7 +42,7 @@ char* GetLogDir()
 		while (iDirectory < 100)
 		{
 			strcpy(tmpFileName, "logs.");
-			itoa(iDirectory, tmpNo, 10);
+			_itoa(iDirectory, tmpNo, 10);
 			strcat(tmpFileName, tmpNo);
 			strcat(tmpFileName, "\\nwserverlog1.txt");
 
@@ -108,10 +108,10 @@ void RotateLogs()
 	for (oldDirNo = 99; oldDirNo > 0; oldDirNo--)
 	{
 		strcpy(oldDirName, baseDirName);
-		itoa(oldDirNo, tmpNo, 10);
+		_itoa(oldDirNo, tmpNo, 10);
 		strcat(oldDirName, tmpNo);
 		strcpy(newDirName, baseDirName);
-		itoa(oldDirNo + 1, tmpNo, 10);
+		_itoa(oldDirNo + 1, tmpNo, 10);
 		strcat(newDirName, tmpNo);
 		MoveFileA(oldDirName, newDirName);
 	}
