@@ -116,6 +116,7 @@ void CNWNX2App::parseIniFile()
 	dlg.m_intGamespyRetries = iniFile.ReadInteger("NWNX", "GamespyRetries", 5);
 	dlg.m_boolOldGamespyProtocol = iniFile.ReadBool("NWNX", "OldGamespyProtocol", false);
 	dlg.m_intRestartDelay = iniFile.ReadInteger("NWNX", "RestartDelay", 5);
+	dlg.m_boolListGame = iniFile.ReadBool("NWNX", "ListGame", true);
 
 	iniFile.ReadString("NWNX", "ListingService", buffer, 256, DEFAULT_LISTING_SERVICE);
 	dlg.m_customListingService = buffer;

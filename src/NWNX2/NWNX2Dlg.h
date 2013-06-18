@@ -55,6 +55,7 @@ public:
 	int		m_intCrashCounterProcess;
 	int		m_intCrashCounterGamespy;
 	BOOL	m_boolWatchdogGamespy;
+	BOOL	m_boolListGame;
 	int		m_intUpdateIntervalGamespy;
 	int		m_intGamespyRetries;
 	int		m_intRestartDelay;

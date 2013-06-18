@@ -695,6 +695,7 @@ DWORD WINAPI Init(LPVOID lpParam)
 {
 	DWORD SLSHook = FindHook();
 	DWORD GLOHook = FindObjectHook();
+	BOOL listGame;
 
 	// If you are debugging and wondering what to use for alignment, it's X - 5
 	// So for example you are hooking 005C0380:
@@ -718,6 +719,7 @@ DWORD WINAPI Init(LPVOID lpParam)
 
 	debuglevel = iniFile.ReadInteger("NWNX", "debuglevel", 0);
 	iniFile.ReadString("NWNX", "ListingService", new_masterserver, 256, DEFAULT_LISTING_SERVICE);
+	listGame = iniFile.ReadBool("NWNX", "ListGame", true);
 
 
 
@@ -756,14 +758,18 @@ DWORD WINAPI Init(LPVOID lpParam)
 		}
 	}
 	
-	if(!USE_HOST) {
-		if(!HookFunction(sendtoProc, (void **)&sendtoOriginal, sendto, WINDOWS_LIBRARY)) {
-			fprintf(logFile, "sendto() hook failed, expect interruption in server registration services.\n");
-			fflush(logFile); 
+	// Don't even put down hooks if the user wants it disabled, in case they are using a separate plugin that 
+	// needs these hooks.
+	if(listGame) {
+		if(!USE_HOST) {
+			if(!HookFunction(sendtoProc, (void **)&sendtoOriginal, sendto, WINDOWS_LIBRARY)) {
+				fprintf(logFile, "sendto() hook failed, expect interruption in server registration services.\n");
+				fflush(logFile); 
+			}
 		}
-	}
-	else {
-		HookFunction(gethostbynameProc, (void **) &gethostbynameOriginal, gethostbyname, WINDOWS_LIBRARY);
+		else {
+			HookFunction(gethostbynameProc, (void **) &gethostbynameOriginal, gethostbyname, WINDOWS_LIBRARY);
+		}
 	}
 	
 
