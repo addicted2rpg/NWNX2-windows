@@ -399,7 +399,7 @@ void PayLoad(char *gameObject, char **pname, char** ppvalue)
 				if (iValueLength < iResultLength)
 				{
 					free(value);
-					*ppvalue = pRes;
+					*ppvalue = pRes;   // *ppvalue is where value was pointing
 					*((unsigned long *)ppvalue+1) = strlen(pRes);
 				}
 				else

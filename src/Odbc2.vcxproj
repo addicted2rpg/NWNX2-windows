@@ -54,6 +54,10 @@
       <AdditionalIncludeDirectories>$(SolutionDir)ODBC2;$(SolutionDir)ODBC2\sqlite;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <ProgramDataBaseFileName>$(IntDir)ODBC2.pdb</ProgramDataBaseFileName>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>
+      </PrecompiledHeaderOutputFile>
     </ClCompile>
     <Link>
       <AdditionalDependencies>mysqlclient.lib;Ws2_32.lib;odbc32.lib;odbccp32.lib;Advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>

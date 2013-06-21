@@ -857,3 +857,5 @@ src/Intermediate/nwnx_chat/rc.write.1.tlog
 src/NWNX_Chat.vcxproj.user
 src/NWNX_Functions/StdAfx.pch
 src/NWNX_Functions/StdAfx.pch
+Distribution/Plugins/nwnx_chat/package files/NWNX_INI.txt.bak
+src/Intermediate/nwnx_chat/nwnx_chat.map

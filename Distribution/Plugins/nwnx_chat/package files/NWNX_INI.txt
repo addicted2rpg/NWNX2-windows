@@ -1,0 +1,40 @@
+;
+; You would add these (preferably with your selections) to NWNX.ini under the [CHAT] heading.
+; If no [CHAT] heading exists, you may type one in (just append it at the end if you like) or copy the text in
+; this file.
+;
+;
+[CHAT]
+; LogLevel depends how much you want logged to your nwnx_chat log.  A level of 2 will get you most debug messages.
+; Keep in mind this is not to log chats, but to debug the plugin and is mainly the subject of developer use.
+LogLevel = 0
+;
+;
+; Changing this number bigger or smaller doesn't really effect performance.  Making it too small may have unseen 
+; consequences.  The value of 1024 is sufficient.
+max_msg_len = 1024
+;
+;
+; processnpc is for processing messages going to and from NPCs. 
+processnpc = 0
+;
+;
+; This option appears to be adjustable during a live run of a mod by a script running something of the nature of 
+; SetLocalString(anything, "NWNX!CHAT!IGNORESILENT", "1");  // or alternatively, "0".
+; If enabled, it should disable processing of silent talk/shout messages
+ignore_silent = 0
+;
+;
+;
+; The chat_script option is really important and you should set it.
+; The name of the NWScript that is ran everytime most message types are sent in the game, so be sure to create one.
+chat_script = your_script
+;
+;
+;
+; The server_script option is the name of the NWScript that is ran everytime a message of the 
+; type "CHAT_CHANNEL_SERVER_MSG" is sent.  This is server messages like 'You are now in a No PVP area.'
+; You do not need to set this option or create a script of the same name, unless of course you want to 
+; do something with that traffic.
+server_script = server_script
+

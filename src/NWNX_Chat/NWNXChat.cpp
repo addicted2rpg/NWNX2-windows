@@ -41,7 +41,7 @@ BOOL CNWNXChat::OnCreate (const char* LogDir)
 {
 	// call the base class function
 	char log[MAX_PATH];
-	sprintf (log, "%s\\nwnx_chat.txt", LogDir);
+	sprintf_s(log, sizeof(char) * MAX_PATH, "%s\\nwnx_chat.txt", LogDir);
 	if (!CNWNXBase::OnCreate(log))
 		return false;
     WriteLogHeader();
@@ -50,7 +50,7 @@ BOOL CNWNXChat::OnCreate (const char* LogDir)
 	return HookFunctions();
 }
 
-char *CNWNXChat::SendMessage(char* Parameters)
+char *CNWNXChat::NWNXSendMessage(char* Parameters)
 {
     if (m_LogLevel >= logAll)
 		Log("o SPEAK: %s\n", Parameters);
@@ -65,15 +65,17 @@ char *CNWNXChat::SendMessage(char* Parameters)
     }
 	int nMessageLen = nParamLen-(nLastDelimiter-Parameters)+1;
 	char *sMessage = new char[nMessageLen];
-    if (sscanf(Parameters, "%x¬%x¬%d¬", &oSender, &oRecipient, &nChannel)<3)
+    if (sscanf_s(Parameters, "%x¬%x¬%d¬", &oSender, &oRecipient, &nChannel) < 3)
     {
 		if (m_LogLevel >= logAll)
 			Log("o sscanf error\n");
 		delete[] sMessage;
 		return "0";
     }
-	strncpy(sMessage, nLastDelimiter+1, nMessageLen-1);
+	strncpy_s(sMessage, sizeof(char) * nMessageLen, nLastDelimiter+1, nMessageLen-1);
+	if (m_LogLevel >= logAll) Log("o sMessage='%s', oID=%X, ", sMessage, oRecipient);
     int nRecipientID = GetID(oRecipient);
+	if (m_LogLevel >= logAll) Log("GetID()=%d\n", nRecipientID);
     if ((nChannel==4 || nChannel==20) && oRecipient<=0x7F000000)
     {
 		if (m_LogLevel >= logAll)
@@ -96,17 +98,33 @@ char *CNWNXChat::SendMessage(char* Parameters)
 
 char* CNWNXChat::OnRequest (char* gameObject, char* Request, char* Parameters)
 {
+
 	if (strncmp(Request, "GETID", 5) == 0)
 	{
-		int OID = strtol(Parameters, 0, 16);
-		char *LastID = (char *) malloc(32);
-		if (!OID)
-			strcpy(LastID, "-1");
-		else
-			sprintf(LastID, "%ld", GetID(OID));
-		if (m_LogLevel >= logScripter)
-			Log("o GETID: oID='%s', ID=%s\n", Parameters, LastID);
-		return LastID;
+		unsigned long OID;
+		unsigned long retrievedID;
+		for(retrievedID=0; retrievedID < 17;retrievedID++) {
+			if(Parameters[retrievedID] == ' ') {
+				Parameters[retrievedID] = 0;
+				break;
+			}
+		}
+
+		OID = strtol(Parameters, NULL, 16);
+
+		if (m_LogLevel >= logScripter) Log("o GETID: sOID='%s' =? iOID='%x'\n", Parameters, OID);
+
+		if (!OID) {
+			strcpy_s(Parameters, 17,  "-1");
+		}
+		else {
+			retrievedID = GetID(OID);
+			sprintf_s(Parameters, 17, "%ld", retrievedID);
+		}
+
+		if (m_LogLevel >= logScripter) Log("o GETID: ID=%s\n", Parameters);
+
+		return NULL;
 	}
 	else if (strncmp(Request, "LOGNPC", 6) == 0)
 	{
@@ -120,29 +138,39 @@ char* CNWNXChat::OnRequest (char* gameObject, char* Request, char* Parameters)
 	}
 	else if (strncmp(Request, "SPEAK", 5) == 0)
 	{
-		char *sReturn = SendMessage(Parameters);
-		strncpy(Parameters, sReturn, strlen(Parameters));
-		Parameters[strlen(sReturn)] = 0;
+		char *sReturn = NWNXSendMessage(Parameters);
+		strncpy_s(Parameters, sizeof(char) * (strlen(Parameters) + 1), sReturn, strlen(Parameters));
+		//Parameters[strlen(sReturn)] = 0;
+		return NULL;
+	}	
+	else if(strncmp(Request, "GETCHATSCRIPT", 13) == 0) {
+		strncpy_s(Parameters, 17, chatScript, strlen(chatScript));
 		return NULL;
 	}
-	
+
 	if (!scriptRun) return NULL; // all following cmds - only in chat script
 	
 	if (strncmp(Request, "TEXT", 4) == 0)
 	{
-		unsigned int length = strlen(lastMsg);
-		char *ret = (char *) malloc(length+1);
-		strncpy(ret, lastMsg, length);
-		ret[length]=0;
-		return ret;
+		// Because of the spacer in NWScript, Parameters should be 1024 easily.
+//		unsigned int length = strlen(lastMsg);
+		strcpy_s(Parameters, 1024, lastMsg);
+//		char *ret = (char *) malloc(length+1);
+//		strncpy_s(ret, (length+1)*sizeof(char), lastMsg, length);
+//		ret[length]=0;
+		return NULL;
 	}
-	else if (strncmp(Request, "LOG", 3) == 0)
+	else if (strncmp(Request, "LOG", 3) == 0) {
 		Log("%s", Parameters);
+	}
 	else if (strncmp(Request, "SUPRESS", 7) == 0)
 	{
+		if(m_LogLevel >= logAll) {
+			Log("o SUPPRESS called.\n");
+		}
 		if (atoi(Parameters)==1)
 			supressMsg = 1;
-	}
+	}    	
 	return NULL;
 }
 
@@ -153,14 +181,15 @@ BOOL CNWNXChat::OnRelease ()
 	return CNWNXBase::OnRelease();
 }
 
+// Called from the hook in nwserver
 int CNWNXChat::Chat(const int mode, const int id, const char *msg, const int to)
 {
 	if ( !msg ) return 0; // don't process null-string
 	int cmode = mode & 0xFF;
 	if (m_LogLevel >= logAll)
 		Log("o CHAT: mode=%lX, from_oID=%08lX, msg='%s', to_ID=%08lX\n", cmode, id, (char *)msg, to);
-	sprintf(lastMsg, "%02d%10d", cmode, to);
-	strncat(lastMsg, (char*)msg, maxMsgLen);
+	sprintf_s(lastMsg, sizeof(char) * (maxMsgLen+13), "%02d%10d", cmode, to);
+	strncat_s(lastMsg, sizeof(char) * (maxMsgLen+13), (char*)msg, maxMsgLen);
 	supressMsg = 0;
 	if (ignore_silent && (cmode==0xD || cmode==0xE)) return 0;
 	if ( (processNPC && id != 0x7F000000) || (!processNPC && (unsigned long)id >> 16 == 0x7FFF) )
@@ -192,7 +221,7 @@ void CNWNXChat::LoadConfiguration ()
 		fprintf(m_fFile, "server_script: %s\n", servScript);
 		fprintf(m_fFile, "max_msg_len: %d\n", maxMsgLen);
 		fprintf(m_fFile, "processnpc: %d\n", processNPC);
-		fprintf(m_fFile, "ignore_silent: %d\n\n", processNPC);
+		fprintf(m_fFile, "ignore_silent: %d\n\n", ignore_silent);
 	}
 }
 

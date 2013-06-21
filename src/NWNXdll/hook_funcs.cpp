@@ -69,15 +69,15 @@ int CreateStackFrame(void *MemoryBuffer, int windowslib)
 	}
 	else {
 
-		*((unsigned long *) DestinationMemory) = 0x9090;
+		*((unsigned long *) DestinationMemory) = 0x9090; // nop nop
 		DestinationMemory += 2;
-		*((unsigned long *) DestinationMemory) = 0x58;  // pop eax=0x58
+		*((unsigned long *) DestinationMemory) = 0x58;  // pop eax=0x58, (fyi, pop ebp=0x5D, push eax=0x50)
 		DestinationMemory++;
-		*((unsigned long *) DestinationMemory) = 0x90;  // pop ebp=0x5D
+		*((unsigned long *) DestinationMemory) = 0x90;  // nop 
 		DestinationMemory++;
 
 
-		*((unsigned long *) DestinationMemory) = 0x90;  // push eax=0x50
+		*((unsigned long *) DestinationMemory) = 0x90; // nop
 		DestinationMemory++;
 
 	}
@@ -173,8 +173,15 @@ int CreateGeneralBridge(void **BridgePointer, void *fn, unsigned char *fill, int
 
 
 
-// HOLY RETURN FORMULA: relative_offset = function_A_trampoline - function_A - 5;
-
+// (Developer notes: HOLY RETURN FORMULA: relative_offset = function_A_trampoline - function_A - 5 - alignment)
+// FilterFunction = pointer to your hooking function, most madCHook implementations call this "HookProc"
+// BridgePointer = writeable pointer (so a pointer to a pointer) leading to the trampoline that takes us back to 
+//				   the original call.  Most madCHook implementations call the bridge pointer "NextHook" in their 
+//                 variable names.                  
+// targetfn = pointer to the function or address you are hooking.  This is annoyingly my third argument, where 
+//			  it is the first in madCHook's HookCode().
+// alignment = Increase the number of bytes copied to the trampoline and alter the return address on the 
+// trampoline accordingly to land correctly.  See its use in NWNXDll.cpp for comments on how this works.
 int HookFunction(void *FilterFunction, void **BridgePointer, void *target_fn, int alignment) {
 	unsigned char *previous;
 	unsigned char *targetFN_cast = (unsigned char *)target_fn;

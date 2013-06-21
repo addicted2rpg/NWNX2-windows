@@ -81,6 +81,11 @@
       <ProgramDatabaseFile>$(IntDir)nwnx_chat.pdb</ProgramDatabaseFile>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <ImportLibrary>$(IntDir)nwnx_chat.lib</ImportLibrary>
+      <AssemblyDebug>false</AssemblyDebug>
+      <GenerateMapFile>false</GenerateMapFile>
+      <MapFileName>
+      </MapFileName>
+      <DataExecutionPrevention>false</DataExecutionPrevention>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

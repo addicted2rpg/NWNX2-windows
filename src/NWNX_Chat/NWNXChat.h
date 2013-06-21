@@ -59,7 +59,7 @@ private:
 	char servScript[17];
 	
 protected:
-	char *SendMessage(char* Parameters);
+	char *NWNXSendMessage(char* Parameters);
 };
 
 #endif
