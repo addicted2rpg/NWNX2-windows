@@ -2,6 +2,7 @@
     Chat plugin for NWNX  - hooks implementation
     (c) 2005,2006 dumbo (dumbo@nm.ru)
     (c) 2006-2007 virusman (virusman@virusman.ru)
+	(c) 2013 addicted2rpg (duckbreath@yahoo.com)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,9 +20,9 @@
  ***************************************************************************/
 
 #include "HookChat.h"
-//#include "madCHook.h"
 #include "..\NWNXdll\hook_funcs.h"
 #include "NWNXChat.h"
+#include "..\RockLib\include\CExoString.h"
 
 extern CNWNXChat chat;
 
@@ -34,7 +35,8 @@ dword pScriptThis = 0;
 char *pChatThis = 0;
 
 dword * (*pGetPCobj)();
-int (*pChat)(int mode, int id, char *msg, int len, int to);
+// .text:0043CA00 ; CNWSMessage::SendServerToPlayerChatMessage(unsigned char, unsigned long, CExoString, unsigned long, CExoString const &)
+int (*pChat)(unsigned char mode, unsigned long id, CExoString str, unsigned long to, CExoString const &p);
 
 char scriptRun = 0;
 char *lastMsg;
@@ -252,72 +254,49 @@ nwnx_chat.dll:07E516C3 pop     ebp
 nwnx_chat.dll:07E516C4 retn
 
 
-Stack frame of a particular run of Chat ('blah' in Talk)-
-Stack[00001894]:0018FC94 ; [BEGIN OF STACK FRAME Chat. PRESS KEYPAD "-" TO COLLAPSE]
-Stack[00001894]:0018FC94 db  18h          // this is the return address pushed onto the stack from an ASM 'call' directive
-Stack[00001894]:0018FC95 db  50h ; P
-Stack[00001894]:0018FC96 db  53h ; S
-Stack[00001894]:0018FC97 db    0
-Stack[00001894]:0018FC98 arg_0 dd 457F9901h   // The last BYTE (i.e., 01) appears to be the channel.  Code doesn't seem to use the other stuff in Chat()
-Stack[00001894]:0018FC9C arg_4 dd 7FFFFFFDh    // Some kind of PC identifier
-Stack[00001894]:0018FCA0 arg_8 dd offset aBlah_0                 ; Obviously the message
-Stack[00001894]:0018FCA0                                         ; "blah"
-Stack[00001894]:0018FCA4 db    5   // length of the message
-Stack[00001894]:0018FCA5 db    0
-Stack[00001894]:0018FCA6 db    0
-Stack[00001894]:0018FCA7 db    0
-Stack[00001894]:0018FCA8 arg_10 dd 0FFFFFFFFh    // probably 'to' ID
-Stack[00001894]:0018FCA8 ; [END OF STACK FRAME Chat. PRESS KEYPAD "-" TO COLLAPSE]
-
-
 */
 
 
-int SendMsg(const int mode, const int id, char *msg, const int to)
+
+// msg is null terminated
+int SendMsg(const DWORD mode, const int id, char *msg, const int to)
 {
 	int nRetVal;
+	DWORD len;
+
+	CExoString *c = new CExoString(msg);
+	CExoString *d = new CExoString(msg);
+
+	
 	if (pChat && pChatThis && msg)
 	{
-		int len = strlen(msg);
 		
-		_asm { 
+		len = strlen(msg) + 1;
+		
+
+		_asm {
+		  push 0   
 		  push to
 		  push len
-		  push msg  
+		  push msg
 		  push id 
-
-// OK LISTEN UP!  "mode" is a DWORD that I can't replicate at the moment, but it looks like this:
-// 0xAABBBBCC
-// AA = Packet ID.  It keeps incrementing.  I've seen this a thousand times in NWN-network debugging.
-// BBBB = CRC value used in UDP error correction.  I have the code that will generate this (from another project), 
-//        but I am not putting it in until I find a way to spoof AA (the Packet ID byte).  Just putting a number 
-//        - even a valid one - won't work unless we increment it inside the server engine or the player will 
-//        de-synch and lose connection.
-// CC = this is the 'mode' that is passed to this function.  Its the actual chat channel the message is on.
-//      It is typically a number 1-6 representing the various NWN chat channels.
-//      this value is masked off the DWORD starting at 0043CA7E in your neighborhood IDA debugger.
-//
-// Oh, and the application crashes if you send 000000CC, or basically "push mode" like below as is :P
 		  push mode 
-		  mov ecx, pChatThis // This pChatThis MIGHT be represented by the following instructions (in order, left to right):
-			                 // mov ecx, [ecx+4] --> mov ecx, [ecx+4] --> mov ecx, [ecx+10018h]
-							 // As pChatThis, it appears to be pointing correctly, so no need to do this.
+
+		  mov ecx, pChatThis 
 		  call [pChat]
 		  mov nRetVal, eax
 		}
+		
+
 		/*
-		_asm { 
-			//push return_address that was on the stack from last call. i.e., 00535018
-			push mode   // there is a lot more to the mode encoding, but it appears it only uses the last BYTE.
-			push id
-			push msg
-			push len
-			push to //push arg_10_mystery_FFFFFFFF, probably the RECIPIENT...
-			mov ecx, pChatThis  
-			call [pChat]
-			mov nRetVal, eax
+		_asm {
+			mov ecx, pChatThis
 		}
+		pChat((unsigned char)mode, id, *c, to, NULL);
 		*/
+
+		delete c;
+		delete d;
 
 
 		return nRetVal;
@@ -385,10 +364,7 @@ unsigned long GetID(DWORD OID)
 	if(!pcObj) {
 		return NULL;
 	}
-	if(chat.m_LogLevel >= chat.logAll) {
-		fprintf(chat.m_fFile, "pcObj+1 = %X, *(pcObj+1)= %X\n", pcObj+1, *(pcObj+1));
-		fflush(chat.m_fFile);
-	}
+
 
 	return *(pcObj+1); // +1 dword = +4
 }

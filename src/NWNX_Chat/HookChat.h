@@ -34,7 +34,7 @@ int HookFunctions();
 void RunScript(char * sname, int ObjID);
 unsigned long * GetPCobj(dword OID);
 unsigned long GetID(dword OID);
-int SendMsg(const int mode, const int id, char *msg, const int to);
+int SendMsg(const DWORD mode, const int id, char *msg, const int to);
 
 extern char scriptRun;
 extern char *lastMsg;

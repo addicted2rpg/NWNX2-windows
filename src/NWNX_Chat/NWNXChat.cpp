@@ -2,6 +2,7 @@
     Chat plugin for NWNX - Implementation of the CNWNXChat class.
     (c) 2005,2006 dumbo (dumbo@nm.ru)
     (c) 2006-2007 virusman (virusman@virusman.ru)
+	(c) 2013 addicted2rpg (duckbreath@yahoo.com)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,6 +22,7 @@
 #include "NWNXChat.h"
 #include "HookChat.h"
 #include "../NWNXdll/IniFile.h"
+//#include "nwn_crc.h"
 #include <stdio.h>
 
 //////////////////////////////////////////////////////////////////////
@@ -52,9 +54,12 @@ BOOL CNWNXChat::OnCreate (const char* LogDir)
 
 char *CNWNXChat::NWNXSendMessage(char* Parameters)
 {
+	int oSender, oRecipient, nResult;
+	DWORD nChannel;
+
     if (m_LogLevel >= logAll)
 		Log("o SPEAK: %s\n", Parameters);
-    int oSender, oRecipient, nChannel;
+
     int nParamLen = strlen(Parameters);
     char *nLastDelimiter = strrchr(Parameters, '¬');
     if (!nLastDelimiter || (nLastDelimiter-Parameters)<0)
@@ -73,7 +78,7 @@ char *CNWNXChat::NWNXSendMessage(char* Parameters)
 		return "0";
     }
 	strncpy_s(sMessage, sizeof(char) * nMessageLen, nLastDelimiter+1, nMessageLen-1);
-	if (m_LogLevel >= logAll) Log("o sMessage='%s', oID=%X, ", sMessage, oRecipient);
+//	if (m_LogLevel >= logAll) Log("o sMessage='%s', oID=%X, ", sMessage, oRecipient);
     int nRecipientID = GetID(oRecipient);
 	if (m_LogLevel >= logAll) Log("GetID()=%d\n", nRecipientID);
     if ((nChannel==4 || nChannel==20) && oRecipient<=0x7F000000)
@@ -83,10 +88,24 @@ char *CNWNXChat::NWNXSendMessage(char* Parameters)
 		delete[] sMessage;
 		return "0";
     }
-    if(nChannel!=4 && nChannel!=20) nRecipientID=-1;
+
+    if(nChannel!=4 && nChannel!=20) {
+		if(nChannel != 5)
+			nRecipientID=-1;
+	}
+	
+
+	if(nChannel == 5) {
+		oSender = oRecipient;
+	} 
+	else {
+	}
     if (m_LogLevel >= logAll)
 		Log("o SendMsg(%d, %08lX, '%s', %d)\n", nChannel, oSender, sMessage, nRecipientID);
-    int nResult = SendMsg(nChannel, oSender, sMessage, nRecipientID);
+
+    nResult = SendMsg(nChannel, oSender, sMessage, nRecipientID);
+	Log("\n--------We did it!--------\n\n");
+
 	if (m_LogLevel >= logAll)
 		Log("o Return value: %d\n", nResult); //return value for full message delivery acknowledgement
 	delete[] sMessage;
@@ -94,7 +113,6 @@ char *CNWNXChat::NWNXSendMessage(char* Parameters)
 	else return "0";
 }
 
-//char buf4msg[1024];
 
 char* CNWNXChat::OnRequest (char* gameObject, char* Request, char* Parameters)
 {
@@ -184,7 +202,15 @@ BOOL CNWNXChat::OnRelease ()
 // Called from the hook in nwserver
 int CNWNXChat::Chat(const int mode, const int id, const char *msg, const int to)
 {
+
 	if ( !msg ) return 0; // don't process null-string
+	
+	/*
+	dwTest = nwn_crc(msg_string, msg_len);
+	nwncrc2bytes(dwTest, &first, &second);
+	Log("** CRC calc %X%X\n", first, second);
+	*/
+
 	int cmode = mode & 0xFF;
 	if (m_LogLevel >= logAll)
 		Log("o CHAT: mode=%lX, from_oID=%08lX, msg='%s', to_ID=%08lX\n", cmode, id, (char *)msg, to);
