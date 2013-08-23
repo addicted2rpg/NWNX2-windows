@@ -390,6 +390,7 @@ void PayLoad(char *gameObject, char **pname, char** ppvalue)
 		char* pRes = pBase->OnRequest(gameObject, function + 1, value);
 		if (pRes != NULL)
 		{
+			// If its not Leto and its not Hashset....
 			if(strncmp(library,"LETO",4) != 0 &&
 			   strncmp(library,"HASHSET",7) != 0)
 			{
@@ -398,6 +399,8 @@ void PayLoad(char *gameObject, char **pname, char** ppvalue)
 				iResultLength = strlen(pRes);
 				if (iValueLength < iResultLength)
 				{
+					// You'll not want to change free() to HeapFree() because it references to an NWN internal and 
+					// has the same heap manager.
 					free(value);
 					*ppvalue = pRes;   // *ppvalue is where value was pointing
 					*((unsigned long *)ppvalue+1) = strlen(pRes);
@@ -406,7 +409,7 @@ void PayLoad(char *gameObject, char **pname, char** ppvalue)
 				{
 					strncpy(value, pRes, iResultLength);
 					*(value+iResultLength) = 0x0;
-					free(pRes);
+					HeapFree(GetProcessHeap(), NULL, pRes);
 				}
 			}
 			else

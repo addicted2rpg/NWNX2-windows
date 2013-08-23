@@ -860,3 +860,4 @@ src/NWNX_Functions/StdAfx.pch
 Distribution/Plugins/nwnx_chat/package files/NWNX_INI.txt.bak
 src/Intermediate/nwnx_chat/nwnx_chat.map
 src/Intermediate/nwnx_chat/CExoString.obj
+src/Intermediate/nwnx_chat/CNWSMessage.obj

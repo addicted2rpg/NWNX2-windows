@@ -2,6 +2,7 @@
     Chat plugin for NWNX - interface for the CNWNXChat class.
     (c) 2005,2006 dumbo (dumbo@nm.ru)
     (c) 2006-2007 virusman (virusman@virusman.ru)
+	(c) 2013 addicted2rpg (duckbreath@yahoo.com)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -57,9 +58,15 @@ private:
 	int ignore_silent;
 	char chatScript[17];
 	char servScript[17];
+
+	// Leave it to Bioware to make their own Heap instead of using the default heap from GetProcessHeap()
+	DWORD *heapAddress;
+
+	int SendServerMessage(char *sMessage, int nRecipientID);
 	
 protected:
 	char *NWNXSendMessage(char* Parameters);
+
 };
 
 #endif

@@ -39,13 +39,7 @@
     <ClCompile Include="HookFunc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LogFile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="nwnx_funcs.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="StdAfx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\NWNXdll\IniFile.cpp">
@@ -225,21 +219,21 @@
     <ClCompile Include="..\RockLib\nwn_internals\CVirtualMachine.cpp">
       <Filter>Source Files\nwn_internals</Filter>
     </ClCompile>
+    <ClCompile Include="..\RockLib\StdAfx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\RockLib\LogFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HookFunc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LogFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="nwnx_funcs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="StdAfx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\NWNXdll\IniFile.h">
@@ -309,6 +303,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\NWNXdll\hook_funcs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\RockLib\StdAfx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\RockLib\LogFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

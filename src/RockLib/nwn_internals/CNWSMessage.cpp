@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "..\StdAfx.h"
 #include "types.h"
 #include "nwn_internals.h"
 

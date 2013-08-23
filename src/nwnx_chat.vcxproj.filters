@@ -64,5 +64,8 @@
     <ClCompile Include="RockLib\nwn_internals\CExoString.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="RockLib\nwn_internals\CNWSMessage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

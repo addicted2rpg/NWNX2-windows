@@ -228,35 +228,25 @@ void RunScript(char * sname, int ObjID)
   scriptRun = 0;
 }
 
-/*
-SendMsg below looks like this in the debugger-
 
 
-nwnx_chat.dll:07E51692 loc_7E51692:                            ; CODE XREF: nwnx_chat.dll:07E51697j
-nwnx_chat.dll:07E51692 mov     cl, [eax]              /// Loop, most likely strlen
-nwnx_chat.dll:07E51694 inc     eax
-nwnx_chat.dll:07E51695 test    cl, cl
-nwnx_chat.dll:07E51697 jnz     short loc_7E51692     /// End loop, most likely strlen
-nwnx_chat.dll:07E51699 sub     eax, edx
-nwnx_chat.dll:07E5169B mov     [ebp-8], eax
-nwnx_chat.dll:07E5169E push    0
-nwnx_chat.dll:07E516A0 push    dword ptr [ebp+14h]
-nwnx_chat.dll:07E516A3 push    dword ptr [ebp-8]
-nwnx_chat.dll:07E516A6 push    dword ptr [ebp+10h]
-nwnx_chat.dll:07E516A9 push    dword ptr [ebp+0Ch]
-nwnx_chat.dll:07E516AC push    dword ptr [ebp+8]
-nwnx_chat.dll:07E516AF mov     ecx, ds:dword_7E64434    // In a particular run, 0
-nwnx_chat.dll:07E516B5 call    ds:off_7E64428      // definitely calls Chat
-nwnx_chat.dll:07E516BB mov     [ebp-4], eax
-nwnx_chat.dll:07E516BE mov     eax, [ebp-4]
-nwnx_chat.dll:07E516C1 mov     esp, ebp
-nwnx_chat.dll:07E516C3 pop     ebp
-nwnx_chat.dll:07E516C4 retn
-
-
-*/
-
-
+// Addicted2rpg to Whomever It May Concern:  I've tried like hell to get SendMsg() to work.
+// I'm tired of dealing with it!
+// If anyone else wants to debug this, here are some breakpoints I found that are useful:
+// 0050AE55 --- If you do a 'server login' and your join message is announced, you can catch it prior to calling 
+//              what would otherwise normally be the chat hook to see what the server is saying.  
+//              This is only useful for seeing how messages are "normally" sent without calling any 
+//              server messaging routines.
+// 0043CAB8 --- good breakpoint right before "SendServerToPlayerChat_ServerTell"
+// 
+// 43D1F8 and 43D205 are not that useful, but they'll surround the crash area (CExoString::~CExoString())
+// .text:0043D1F8                 mov     dword ptr [esp+68], 0FFFFFFFFh
+// .text:0043D200                 call    CExoString__destructor
+// .text:0043D205                 mov     eax, esi
+// 
+// Even with calling a perfect stack, it seems to get corrupted later on.  Maybe there is a global or a 
+// registry configuration I missed that needs to be set properly as a precondition to the call?  
+// Good luck! :)
 
 // msg is null terminated
 int SendMsg(const DWORD mode, const int id, char *msg, const int to)
@@ -264,8 +254,8 @@ int SendMsg(const DWORD mode, const int id, char *msg, const int to)
 	int nRetVal;
 	DWORD len;
 
-	CExoString *c = new CExoString(msg);
-	CExoString *d = new CExoString(msg);
+	//CExoString *c = new CExoString(msg);
+	//CExoString *d = new CExoString(msg);
 
 	
 	if (pChat && pChatThis && msg)
@@ -273,8 +263,16 @@ int SendMsg(const DWORD mode, const int id, char *msg, const int to)
 		
 		len = strlen(msg) + 1;
 		
-
 		_asm {
+		  push eax
+		  push ebx
+		  push ecx
+		  push edx
+		  push esi
+		  push edi
+//		  push ebp
+//		  mov ebp, esp
+
 		  push 0   
 		  push to
 		  push len
@@ -285,6 +283,14 @@ int SendMsg(const DWORD mode, const int id, char *msg, const int to)
 		  mov ecx, pChatThis 
 		  call [pChat]
 		  mov nRetVal, eax
+
+//		  pop ebp
+		  pop edi
+		  pop esi
+		  pop edx
+		  pop ecx
+		  pop ebx
+		  pop eax
 		}
 		
 
@@ -295,8 +301,8 @@ int SendMsg(const DWORD mode, const int id, char *msg, const int to)
 		pChat((unsigned char)mode, id, *c, to, NULL);
 		*/
 
-		delete c;
-		delete d;
+		//delete c;
+		//delete d;
 
 
 		return nRetVal;

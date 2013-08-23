@@ -150,7 +150,7 @@
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>$(SolutionDir)NWNX_Functions\;$(SolutionDir)RockLib\include;$(SolutionDir)RockLib\nwn_internals;$(SolutionDir)RockLib\CNss\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Rocklib\;$(SolutionDir)NWNX_Functions\;$(SolutionDir)RockLib\include;$(SolutionDir)RockLib\nwn_internals;$(SolutionDir)RockLib\CNss\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -581,9 +581,9 @@
     <ClCompile Include="..\RockLib\nwn_internals\CVirtualMachine.cpp" />
     <ClCompile Include="funcs.cpp" />
     <ClCompile Include="HookFunc.cpp" />
-    <ClCompile Include="LogFile.cpp" />
+    <ClCompile Include="..\RockLib\LogFile.cpp" />
     <ClCompile Include="nwnx_funcs.cpp" />
-    <ClCompile Include="StdAfx.cpp">
+    <ClCompile Include="..\RockLib\StdAfx.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -670,10 +670,10 @@
   <ItemGroup>
     <ClInclude Include="..\NWNXdll\hook_funcs.h" />
     <ClInclude Include="HookFunc.h" />
-    <ClInclude Include="LogFile.h" />
+    <ClInclude Include="..\RockLib\LogFile.h" />
     <ClInclude Include="nwnx_funcs.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="StdAfx.h" />
+    <ClInclude Include="..\RockLib\StdAfx.h" />
     <ClInclude Include="types.h" />
     <ClInclude Include="..\NWNXdll\IniFile.h" />
     <ClInclude Include="..\NWNXdll\NWNXBase.h" />
