@@ -363,7 +363,8 @@ void CNWNXChat::LoadConfiguration ()
 
 void CNWNXChat::WriteLogHeader()
 {
-	fprintf(m_fFile, "NWNX Chat version 0.3.4 for Windows.\n");
+	fprintf(m_fFile, "NWNX Chat version 0.4.0 for Windows.\n");
 	fprintf(m_fFile, "(c) 2005-2006 by dumbo (dumbo@nm.ru)\n");
 	fprintf(m_fFile, "(c) 2006-2008 virusman (virusman@virusman.ru)\n");
+	fprintf(m_fFile, "(c) 2013 addicted2rpg (duckbreath@yahoo.com)\n");
 }
