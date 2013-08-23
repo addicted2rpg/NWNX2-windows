@@ -230,25 +230,7 @@ void RunScript(char * sname, int ObjID)
 
 
 
-// Addicted2rpg to Whomever It May Concern:  I've tried like hell to get SendMsg() to work.
-// I'm tired of dealing with it!
-// If anyone else wants to debug this, here are some breakpoints I found that are useful:
-// 0050AE55 --- If you do a 'server login' and your join message is announced, you can catch it prior to calling 
-//              what would otherwise normally be the chat hook to see what the server is saying.  
-//              This is only useful for seeing how messages are "normally" sent without calling any 
-//              server messaging routines.
-// 0043CAB8 --- good breakpoint right before "SendServerToPlayerChat_ServerTell"
-// 
-// 43D1F8 and 43D205 are not that useful, but they'll surround the crash area (CExoString::~CExoString())
-// .text:0043D1F8                 mov     dword ptr [esp+68], 0FFFFFFFFh
-// .text:0043D200                 call    CExoString__destructor
-// .text:0043D205                 mov     eax, esi
-// 
-// Even with calling a perfect stack, it seems to get corrupted later on.  Maybe there is a global or a 
-// registry configuration I missed that needs to be set properly as a precondition to the call?  
-// Good luck! :)
-
-// msg is null terminated
+// Function unchanged largely from the original.
 int SendMsg(const DWORD mode, const int id, char *msg, const int to)
 {
 	int nRetVal;
@@ -270,10 +252,9 @@ int SendMsg(const DWORD mode, const int id, char *msg, const int to)
 		  push edx
 		  push esi
 		  push edi
-//		  push ebp
-//		  mov ebp, esp
 
-		  push 0   
+
+		  push 0   // ??
 		  push to
 		  push len
 		  push msg
@@ -284,7 +265,6 @@ int SendMsg(const DWORD mode, const int id, char *msg, const int to)
 		  call [pChat]
 		  mov nRetVal, eax
 
-//		  pop ebp
 		  pop edi
 		  pop esi
 		  pop edx
@@ -326,42 +306,6 @@ DWORD *GetPCobj(dword OID)
   
   return pGetPCobj();
 
-   
-
-	//dword * (__fastcall *pGetPCObj)(void *pThis, int edx, unsigned int OID)
-	//(3:50:35 PM) virusman: that's how __fastcall can be used to emulate __thiscall
-	//(3:51:09 PM) virusman: on Windows, with __thiscall, this goes to ecx, and method arguments are pushed onto the stack
-
-	// Wants ExoAppInternal
-	// CNWSPlayer * __thiscall CServerExoAppInternal::GetClientObjectByObjectId(unsigned long)
-/*  
-	DWORD *x;
-	DWORD raw;
-	x = (DWORD *)pServThis;
-	x = (DWORD *) *x;
-//	fprintf(chat.m_fFile, "x--> %X\n", x);
-	raw = (DWORD) x;
-	raw = raw + 4;
-	x = (DWORD *) raw;
-	x = (DWORD *) *x;
-//	fprintf(chat.m_fFile, "x--> %X\n", x);
-	raw = (DWORD) x;
-	raw = raw + 4;
-	x = (DWORD *)raw;
-	x = (DWORD *) *x;
-//	fprintf(chat.m_fFile, "x--> %X\n", x);
-	
-	_asm {
-		mov ecx, x
-		push OID
-	}
-	
-	
-	x = pGetPCobj();
-	fprintf(chat.m_fFile, "pGetPCobj() called.  x=%X\n", x);
-	fflush(chat.m_fFile);
-	return x;
-*/	
 }
 
 unsigned long GetID(DWORD OID)
@@ -383,14 +327,19 @@ int HookFunctions()
 	DWORD org_Get  = FindGetPCobjByOID();
 	if (org_Chat)
 	{
+
 		// (3:10:59 PM) virusman: so pServThis is a pointer to the ServerExoApp afaik
+		//dword * (__fastcall *pGetPCObj)(void *pThis, int edx, unsigned int OID)
+		//(3:50:35 PM) virusman: that's how __fastcall can be used to emulate __thiscall
+		//(3:51:09 PM) virusman: on Windows, with __thiscall, this goes to ecx, and method arguments are pushed onto the stack
+
 		pServThis = *(DWORD *)(org_Chat + 0x1f);
 		pScriptThis = pServThis - 8;
 
 		//success1 = HookCode((PVOID) org_Chat, ChatHookProc, (PVOID*) &ChatNextHook);
 		success1 = HookFunction( ChatHookProc, (PVOID*) &ChatNextHook, (PVOID) org_Chat, 2);
 		*(dword*)&pChat = org_Chat;   // nothing wrong with hooking our own message
-		// *(DWORD *)&pChat = (DWORD)ChatNextHook + (DWORD)16;  
+		
 	}
 
 	if (org_Chat && success1) {

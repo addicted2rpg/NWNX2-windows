@@ -22,18 +22,18 @@
 #include "NWNXChat.h"
 #include "HookChat.h"
 #include "../NWNXdll/IniFile.h"
-//#include "nwn_crc.h"
 #include <stdio.h>
-#include "..\RockLib\include\types.h"
-#include "..\RockLib\include\CExoString.h"
-#include "..\RockLib\include\CNWSMessage.h"
+
+//#include "..\RockLib\include\types.h"
+//#include "..\RockLib\include\CExoString.h"
+//#include "..\RockLib\include\CNWSMessage.h"
 
 
 extern char *pChatThis;
 
 
-//.text:0043DEA0 ; CNWSMessage::SendServerToPlayerChat_ServerTell(unsigned long pID, CExoString str)
-//int 		(__thiscall *CNWSMessage__SendServerToPlayerChat_ServerTell)(CNWSMessage *pTHIS, uint32_t Receiver, CExoString Msg) = (int (__thiscall*)(CNWSMessage *pTHIS, uint32_t Receiver, CExoString Msg))0x0043DEA0;
+
+
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -48,6 +48,7 @@ CNWNXChat::CNWNXChat()
 
 CNWNXChat::~CNWNXChat()
 {
+
 }
 
 BOOL CNWNXChat::OnCreate (const char* LogDir)
@@ -63,13 +64,21 @@ BOOL CNWNXChat::OnCreate (const char* LogDir)
 	return HookFunctions();
 }
 
+
+/* This probably function can be consolidated back into just SendMsg(), but since its not broken why fix it? :)  */
+//.text:0043DEA0 ; CNWSMessage::SendServerToPlayerChat_ServerTell(unsigned long pID, CExoString str)
 int CNWNXChat::SendServerMessage(char *sMessage, int nRecipientID) {
 	int retval;
 	DWORD fn = 0x0043DEA0;
 
 	
-	CExoString *c = new CExoString(sMessage);
-	CNWSMessage *m = new CNWSMessage();
+	/*
+	The Rocklib class internals use 'new' instead of HeapAlloc, and therefore will not work from this calling context.
+	This is not to say the libraries are without application, just not *here* since NWN will be touching 
+	our allocated memory - commented out for future use some day.
+	*/
+	//CExoString *c = new CExoString(sMessage);
+	//CNWSMessage *m = new CNWSMessage();
 	
 	//retval = m->SendServerToPlayerChat_ServerTell(nRecipientID, *c);
 	
@@ -83,11 +92,22 @@ int CNWNXChat::SendServerMessage(char *sMessage, int nRecipientID) {
 		push esi
 		push edi
 
+		// These values are established from ServerTell's wrapping function, SendChatMessage.  They are 
+		// preconditions and the code will die without them being correctly set.  They can have different values 
+		// which seem to indicate context (a server message from a login as opposed to one from the server-app window).
+		// These use the server-app window context.  I do not know why these are not arguments pushed on the stack 
+		// or in ecx, but it seems this is the way of it.
 		mov eax, 0  		            
 		mov ebx, 1  
 		mov esi, 1  
 
-		// the crappy edi hack... not even sure if its even looked at.
+		// the crappy edi hack... not even sure if its even looked at.  
+		// essentially the calling context is a pointer chain that leads to 0, so I'm just using 
+		// the stack space to emulate the same typing in C/C++.  I analyzed the asm pretty well and I might 
+		// have missed a spot, but I think this instance of edi is unused except possibly in the CExoString destructor,
+		// but its case dependent so I question if the used case is ever even called.  Keeping this code for 
+		// consistency though until I can veritably determine it will absolutely not effect anything later on.
+		// If I'm wrong, forgive me I'm human :)
 		push 0
 		lea edi, [esp]
 		push edi
@@ -95,18 +115,20 @@ int CNWNXChat::SendServerMessage(char *sMessage, int nRecipientID) {
 		push edi
 		lea edi, [esp]
 
-		push retval
-		push sMessage
-		push nRecipientID
-		mov ecx, pChatThis 
+		// Setup the arguments for the function call now - 
+		push retval   // length component of CExoString (MaxRock's declaration ordering is correct).
+		push sMessage  // string component of CExoString
+		push nRecipientID 
+		mov ecx, pChatThis // ServerExoApp, courtesy of Virusman :)
 		call fn
 		mov retval, eax
 
-		// or just add esp, 0xC
+		// or just add esp, 0xC.  undo the edi hack.
 		pop eax
 		pop eax
 		pop eax
 
+		// restore the regs.
 		pop edi
 		pop esi
 		pop edx
@@ -115,8 +137,8 @@ int CNWNXChat::SendServerMessage(char *sMessage, int nRecipientID) {
 		pop eax
 	}
 	
-	delete c;
-	delete m;
+	//delete c;
+	//delete m;
 	return retval;
 }
 
@@ -130,10 +152,6 @@ char *CNWNXChat::NWNXSendMessage(char* Parameters)
     if (m_LogLevel >= logAll)
 		Log("o SPEAK: %s\n", Parameters);
 
-	if(m_LogLevel >= logAll) {
-		Log("[+-+-+-+Heap Love-+-+-+-+\n\tGetProcessHeap() located at %X\n", GetProcessHeap());
-		Log("\tNWN is storing its heap handle at %X\n", *heapAddress);
-	}
 
 	sharedHeap = (HANDLE) *heapAddress;
 
@@ -192,17 +210,16 @@ char *CNWNXChat::NWNXSendMessage(char* Parameters)
 			// It does this at address line .text:00602642 and 'esi' (arg 3) is the same pointer as sMessage.  
 			// Don't free it!  A memory leak should NOT result.
 			// HeapFree(sharedHeap, NULL, sMessage);
-			if(nResult) return "1";
 			break;
 		default:
 			nResult = SendMsg(nChannel, oSender, sMessage, nRecipientID);
+			// do not free sMessage
 			break;
 	}
 
 
 	if (m_LogLevel >= logAll)
 		Log("o Return value: %d\n", nResult); //return value for full message delivery acknowledgement
-	//delete[] sMessage;
 
 	if(nResult) return "1";
 	else return "0";
@@ -211,7 +228,6 @@ char *CNWNXChat::NWNXSendMessage(char* Parameters)
 
 char* CNWNXChat::OnRequest (char* gameObject, char* Request, char* Parameters)
 {
-	char *returnStr;
 
 	if (strncmp(Request, "GETID", 5) == 0)
 	{
@@ -238,8 +254,6 @@ char* CNWNXChat::OnRequest (char* gameObject, char* Request, char* Parameters)
 
 		if (m_LogLevel >= logScripter) Log("o GETID: ID=%s\n", Parameters);
 
-		//mytest = (char *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(char)* strlen(Parameters) + 1);
-		//strcpy(mytest, Parameters);
 		return NULL;
 	}
 	else if (strncmp(Request, "LOGNPC", 6) == 0)
@@ -260,12 +274,9 @@ char* CNWNXChat::OnRequest (char* gameObject, char* Request, char* Parameters)
 		return NULL;
 	}	
 	else if(strncmp(Request, "GETCHATSCRIPT", 13) == 0) {
-		returnStr = (char *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(char)* strlen(chatScript) + 1);
-		strncpy_s(returnStr, sizeof(char)*strlen(chatScript) + 1, chatScript, strlen(chatScript));
 
-		return returnStr;
-		//strncpy_s(Parameters, 17, chatScript, strlen(chatScript));
-		//return NULL;
+		strncpy_s(Parameters, 17, chatScript, strlen(chatScript));
+		return NULL;
 	}
 
 	if (!scriptRun) return NULL; // all following cmds - only in chat script

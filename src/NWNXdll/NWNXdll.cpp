@@ -56,6 +56,7 @@ int debuglevel = 0;
 
 bool ObjRet = 0;
 unsigned long oRes;
+DWORD *dwpSharedHeap = (DWORD *)0x5EEFF00; 
 
 CHashTable Libraries;
 
@@ -344,6 +345,7 @@ void PayLoad(char *gameObject, char **pname, char** ppvalue)
 	int iValueLength;
 	int iResultLength;
 	char *name;
+//	HANDLE sharedHeap = (HANDLE) *dwpSharedHeap;
 
 	name = *pname;
 	
@@ -399,8 +401,6 @@ void PayLoad(char *gameObject, char **pname, char** ppvalue)
 				iResultLength = strlen(pRes);
 				if (iValueLength < iResultLength)
 				{
-					// You'll not want to change free() to HeapFree() because it references to an NWN internal and 
-					// has the same heap manager.
 					free(value);
 					*ppvalue = pRes;   // *ppvalue is where value was pointing
 					*((unsigned long *)ppvalue+1) = strlen(pRes);
@@ -409,7 +409,8 @@ void PayLoad(char *gameObject, char **pname, char** ppvalue)
 				{
 					strncpy(value, pRes, iResultLength);
 					*(value+iResultLength) = 0x0;
-					HeapFree(GetProcessHeap(), NULL, pRes);
+					free(pRes);
+					//HeapFree(sharedHeap, NULL, pRes);
 				}
 			}
 			else
