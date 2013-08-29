@@ -20,10 +20,13 @@
  *  $HeadURL$
  *
  */
+#pragma once
 
 #ifndef _NX_NWN_STRUCT_CEXOARRAYLIST_H_
 #define _NX_NWN_STRUCT_CEXOARRAYLIST_H_
 
+#include "CExoString.h"
+#include <string>
 
 /* XXX: delindex does not work right; do not use it or delvalue */
 #define NX_NWN_CEXOARRAYLIST(N, T)                                                                             \
@@ -100,6 +103,8 @@ NX_NWN_CEXOARRAYLIST_CONTAINS(uint32, uint32_t)
 NX_NWN_CEXOARRAYLIST_CONTAINS(uint64, uint64_t)
 NX_NWN_CEXOARRAYLIST_CONTAINS(float,  float)
 NX_NWN_CEXOARRAYLIST_CONTAINS(ptr,    void *)
+// from nwnx_connect / cool
+NX_NWN_CEXOARRAYLIST_CONTAINS(string, CExoString)
 
 
 #endif /* _NX_NWN_STRUCT_CEXOARRAYLIST_H_ */

@@ -3,7 +3,7 @@
 
 class CExoString {
 public:
-	char *text;  
+	char *text;
 	unsigned __int32 len; // do NOT rely on the length of this for any comparison
 						  // if a shorter string is assigned to a longer one (A = B), len will still be the original length 
 
@@ -26,6 +26,7 @@ public:
 
 	int	AsTAG(CExoString *ExoString);
 	int StripNonAlphaNumeric(int a1, int a2, int a3);
+	//CExoString * CExoStringCpy(char const *Source);
 
 };
 

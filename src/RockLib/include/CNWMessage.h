@@ -35,6 +35,8 @@ struct CNWMessage_s {
 	int			GetWriteMessage(char **ppData, uint32_t *pLength);
 	int			WriteWORD(unsigned __int16 a2, int a3);
 	
+	// From nwnx_connect.  Was 0x5084F0 dropped from a prior version or recently added?  oh well...
+	void WriteINT(int i, int i2);
 };
 
 #endif

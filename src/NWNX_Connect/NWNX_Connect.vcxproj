@@ -1,0 +1,119 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{D0E31253-38FB-40C0-934D-4BB3539B5204}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>NWNX_Connect</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <IntDir>$(SolutionDir)Intermediate\nwnx_connect\</IntDir>
+    <OutDir>$(SolutionDir)..\Distribution\Plugins\nwnx_connect\</OutDir>
+    <TargetName>nwnx_connect</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;NWNX_CONNECT_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;NWNX_CONNECT_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>
+      </PrecompiledHeaderOutputFile>
+      <AdditionalIncludeDirectories>$(SolutionDir)RockLib\CNss;$(SolutionDir)RockLib\nwn_internals;$(SolutionDir)RockLib\include;$(SolutionDir)RockLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <ProgramDatabaseFile>$(IntDir)nwnx_connect.pdb</ProgramDatabaseFile>
+      <ProfileGuidedDatabase>$(IntDir)nwnx_connect.pgd</ProfileGuidedDatabase>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>false</DataExecutionPrevention>
+      <LargeAddressAware>false</LargeAddressAware>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\NWNXdll\hook_funcs.cpp" />
+    <ClCompile Include="..\NWNXdll\IniFile.cpp" />
+    <ClCompile Include="..\NWNXdll\NWNXBase.cpp" />
+    <ClCompile Include="..\RockLib\nwn_internals\CExoString.cpp" />
+    <ClCompile Include="..\RockLib\nwn_internals\CNWMessage.cpp" />
+    <ClCompile Include="..\RockLib\nwn_internals\CNWSMessage.cpp" />
+    <ClCompile Include="..\RockLib\nwn_internals\CNWSModule.cpp" />
+    <ClCompile Include="..\RockLib\nwn_internals\CServerExoAppInternal.cpp" />
+    <ClCompile Include="..\RockLib\nwn_internals\nwn_internals.cpp" />
+    <ClCompile Include="Connect.cpp" />
+    <ClCompile Include="NWNXConnect.cpp" />
+    <ClCompile Include="nwnx_memory.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\NWNXdll\hook_funcs.h" />
+    <ClInclude Include="..\NWNXdll\IniFile.h" />
+    <ClInclude Include="..\NWNXdll\NWNXBase.h" />
+    <ClInclude Include="..\RockLib\include\CExoString.h" />
+    <ClInclude Include="..\RockLib\include\CNWMessage.h" />
+    <ClInclude Include="..\RockLib\include\CNWSMessage.h" />
+    <ClInclude Include="..\RockLib\include\CNWSModule.h" />
+    <ClInclude Include="..\RockLib\include\nwnx_funcs_const.h" />
+    <ClInclude Include="..\RockLib\include\nwn_internals.h" />
+    <ClInclude Include="..\RockLib\include\types.h" />
+    <ClInclude Include="NWNXConnect.h" />
+    <ClInclude Include="nwnx_memory.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

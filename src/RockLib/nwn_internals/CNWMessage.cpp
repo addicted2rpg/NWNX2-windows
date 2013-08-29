@@ -13,6 +13,9 @@ int (__thiscall *CNWMessage__WriteFLOAT)(void *pTHIS, float, float, int) = (int(
 int (__thiscall *CNWMessage__WriteWORD)(void *pTHIS, unsigned __int16 a2, int a3) = (int(__thiscall*)(void *pTHIS, unsigned __int16 a2, int a3))0x00508210;
 int	(__thiscall *CNWMessage__GetWriteMessage)(CNWMessage *pTHIS, char **ppData, uint32_t *pLength) = (int (__thiscall *)(CNWMessage *pTHIS, char **ppData, uint32_t *pLength))0x00508B80;
 
+// From nwnx_connect-
+void (__thiscall *CNWMessage__WriteINT)(void *pTHIS, int i, int i2) = (void(__thiscall*)(void *pTHIS, int i, int i2))0x5084F0;
+
 int CNWMessage_s::ReadCResRef(CResRef *ResRef, int a3) {
 	return CNWMessage__ReadCResRef(this, ResRef, a3);
 }
@@ -50,4 +53,9 @@ int CNWMessage_s::GetWriteMessage(char **ppData, uint32_t *pLength) {
 
 int CNWMessage_s::WriteWORD(unsigned __int16 a2, int a3) {
 	return CNWMessage__WriteWORD(this, a2, a3);
+}
+
+void CNWMessage::WriteINT(int i, int i2)
+{
+	return CNWMessage__WriteINT(this,i,i2);
 }

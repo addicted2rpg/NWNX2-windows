@@ -20,6 +20,10 @@ struct CExoArrayList_uint16_s;            	typedef struct CExoArrayList_uint16_s
 struct CExoArrayList_uint32_s;            	typedef struct CExoArrayList_uint32_s           CExoArrayList_uint32;
 struct CExoArrayList_uint64_s;            	typedef struct CExoArrayList_uint64_s           CExoArrayList_uint64;
 struct CExoArrayList_uint8_s;             	typedef struct CExoArrayList_uint8_s            CExoArrayList_uint8; 
+
+// from nwnx_connect and/or cool
+struct CExoArrayList_string_s;			typedef struct CExoArrayList_string_s			CExoArrayList_string;//doesnt seem to work
+
 struct CResRef_s;							typedef struct CResRef_s						CResRef;
 struct CResGFF_s;							typedef struct CResGFF_s						CResGFF;
 struct Vector_s;							typedef struct Vector_s                         Vector;
@@ -56,6 +60,10 @@ struct CExoResMan_s;						typedef CExoResMan_s							CExoResMan;
 struct CTlkTable_s;							typedef CTlkTable_s								CTlkTable;
 struct CNWTlkTable_s;						typedef CNWTlkTable_s							CNWTlkTable;
 struct CNWRules_s;							typedef struct CNWRules_s						CNWRules;
+
+// from nwnx_connect and/or cool
+struct CNWSEffectListHandler_s;				typedef struct CNWSEffectListHandler_s			CNWSEffectListHandler;
+
 struct CNetLayer_s;                       typedef struct CNetLayer_s                       CNetLayer;
 struct CAppManager_s;                     typedef struct CAppManager_s                     CAppManager;
 struct CScriptLocation_s;                 typedef struct CScriptLocation_s                 CScriptLocation; 
@@ -98,6 +106,9 @@ struct CNWSCreature_s;                    	typedef struct CNWSCreature_s        
 class CQuickbarExtension;
 struct CVirtualMachine_s;                 typedef struct CVirtualMachine_s                 CVirtualMachine;
 struct CNWVisibilityNode_s;					typedef struct CNWVisibilityNode_s				CNWVisibilityNode;
+
+// from nwnx_connect and/or cool
+struct CNWLevelStats_s;                     typedef struct CNWLevelStats_s                  CNWLevelStats;
 
 struct CEffectsStore_s {
 	nwn_objid_t objid;
