@@ -1,0 +1,44 @@
+#include "nwnx_chat"
+
+
+void RunTests(object oPC) {
+
+
+    NWNXChat_SendMessage(oPC, CHAT_CHANNEL_SERVER_MSG, "This is a test of nwnx_chat 4.x.x!");
+    NWNXChat_SendMessage(oPC, CHAT_CHANNEL_TALK, "Eeep!");
+    NWNXChat_SendMessage(oPC, CHAT_CHANNEL_SHOUT, "Eeep!");
+    NWNXChat_SendMessage(oPC, CHAT_CHANNEL_PRIVATE, "Eeep!", oPC);
+    NWNXChat_SendMessage(oPC, CHAT_CHANNEL_WHISPER, "Eeep!");
+    NWNXChat_SendMessage(oPC, CHAT_CHANNEL_PARTY, "Eeep!");
+
+
+
+}
+
+
+
+void main()
+{
+
+		// just make this an OnUse script for some useable object to see how it works.
+    object oPC = GetLastUsedBy();
+    string sChatscript;
+
+    sChatscript = NWNXChat_GetScriptName();
+
+    if(sChatscript == "chat_script") {
+       SendMessageToPC(oPC, "Your NWNX.ini is improperly configured for nwnx_chat or it was set with the same defaults the plugin uses.");
+       SendMessageToPC(oPC, "For example, try setting it to 'command_hook' and writing your own help menu for when the user types /?");
+       return;
+    }
+
+    if(sChatscript == "command_hook") {
+        // run a couple of tests.
+        RunTests(oPC);
+        return;
+    }
+
+   
+
+
+}

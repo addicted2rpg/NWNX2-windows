@@ -155,7 +155,7 @@ string NWNXChat_GetScriptName() {
 
 }
 
-/*
+
 int NWNXChat_SendMessage(object oSender, int nChannel, string sMessage, object oRecipient=OBJECT_INVALID)
 {
     if (!GetIsObjectValid(oSender)) return FALSE;
@@ -170,4 +170,4 @@ int NWNXChat_SendMessage(object oSender, int nChannel, string sMessage, object o
     return FALSE;
 
 }
-*/
+
