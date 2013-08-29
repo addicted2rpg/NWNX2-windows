@@ -60,12 +60,13 @@
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
-      <BrowseInformation>true</BrowseInformation>
-      <PrecompiledHeaderOutputFile>.\Release\NWNX2.pch</PrecompiledHeaderOutputFile>
+      <BrowseInformation>false</BrowseInformation>
+      <PrecompiledHeaderOutputFile>$(SolutionDir)Intermediate\NWNX2\NWNX2.pch</PrecompiledHeaderOutputFile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <ProgramDataBaseFileName>$(IntDir)NWNX2.pdb</ProgramDataBaseFileName>
+      <BrowseInformationFile>$(SolutionDir)Intermediate\NWNX2\</BrowseInformationFile>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -89,6 +90,7 @@
       <AdditionalDependencies>wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>false</DataExecutionPrevention>
+      <ProgramDatabaseFile>$(SolutionDir)Intermediate\NWNX2\NWNX2.pdb</ProgramDatabaseFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DBG|Win32'">

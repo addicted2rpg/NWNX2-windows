@@ -15,6 +15,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Time", "time.vcxproj", "{DC
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NWNX_Chat", "NWNX_Chat.vcxproj", "{A71411E4-333A-401C-B273-AA29F66F90C8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NWNX_Connect", "NWNX_Connect\NWNX_Connect.vcxproj", "{D0E31253-38FB-40C0-934D-4BB3539B5204}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		DBG|Win32 = DBG|Win32
@@ -161,6 +163,24 @@ Global
 		{A71411E4-333A-401C-B273-AA29F66F90C8}.test|Win32.ActiveCfg = Release|Win32
 		{A71411E4-333A-401C-B273-AA29F66F90C8}.test|Win32.Build.0 = Release|Win32
 		{A71411E4-333A-401C-B273-AA29F66F90C8}.test|x64.ActiveCfg = Release|Win32
+		{D0E31253-38FB-40C0-934D-4BB3539B5204}.DBG|Win32.ActiveCfg = Debug|Win32
+		{D0E31253-38FB-40C0-934D-4BB3539B5204}.DBG|Win32.Build.0 = Debug|Win32
+		{D0E31253-38FB-40C0-934D-4BB3539B5204}.DBG|x64.ActiveCfg = Debug|Win32
+		{D0E31253-38FB-40C0-934D-4BB3539B5204}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D0E31253-38FB-40C0-934D-4BB3539B5204}.Debug|Win32.Build.0 = Debug|Win32
+		{D0E31253-38FB-40C0-934D-4BB3539B5204}.Debug|x64.ActiveCfg = Debug|Win32
+		{D0E31253-38FB-40C0-934D-4BB3539B5204}.Release|Win32.ActiveCfg = Release|Win32
+		{D0E31253-38FB-40C0-934D-4BB3539B5204}.Release|Win32.Build.0 = Release|Win32
+		{D0E31253-38FB-40C0-934D-4BB3539B5204}.Release|x64.ActiveCfg = Release|Win32
+		{D0E31253-38FB-40C0-934D-4BB3539B5204}.Server_specific|Win32.ActiveCfg = Release|Win32
+		{D0E31253-38FB-40C0-934D-4BB3539B5204}.Server_specific|Win32.Build.0 = Release|Win32
+		{D0E31253-38FB-40C0-934D-4BB3539B5204}.Server_specific|x64.ActiveCfg = Release|Win32
+		{D0E31253-38FB-40C0-934D-4BB3539B5204}.Template|Win32.ActiveCfg = Release|Win32
+		{D0E31253-38FB-40C0-934D-4BB3539B5204}.Template|Win32.Build.0 = Release|Win32
+		{D0E31253-38FB-40C0-934D-4BB3539B5204}.Template|x64.ActiveCfg = Release|Win32
+		{D0E31253-38FB-40C0-934D-4BB3539B5204}.test|Win32.ActiveCfg = Release|Win32
+		{D0E31253-38FB-40C0-934D-4BB3539B5204}.test|Win32.Build.0 = Release|Win32
+		{D0E31253-38FB-40C0-934D-4BB3539B5204}.test|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
