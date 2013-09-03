@@ -4,6 +4,23 @@
 #include <string.h>
 #include "CExoString.h"
 
+
+/*
+addicted- I don't have time to put these in and test them, but the addresses are correct:
+.text:0040B860 ; CExoString::CExoString(CExoString const &)
+.text:0040B7E0 ; CExoString::CExoString(char const *)
+.text:0040B8E0 ; int CExoString__CExoString(int,char *,int)  
+.text:0040B9A0 ; int CExoString::~CExoString(void)
+.text:0040C450 ; CExoString::GetLength(void)
+.text:0040C550 ; CExoString::IsEmpty(void)
+.text:0040C340 ; int CExoString::Format(int,char *,char)   
+.text:0040C1C0 ; CExoString::AsINT(void)const   
+.text:0040BF10 ; CExoString::__pl(CExoString const &)const
+.text:0040B9D0 ; CExoString::__as(CExoString const &)
+.text:0040C200 ; CExoString::CStr(void)const
+.text:0040CFB0 ; CExoString::AsTAG(void)const  <--- maxrock already did
+*/
+
 int (__thiscall *CExoString__StripNonAlphaNumeric)(CExoString *pTHIS, int a1, int a2, int a3) = (int (__thiscall*)(CExoString *pTHIS, int a1, int a2, int a3))0x0040CE30;
 int	(__thiscall *CExoString__AsTAG)(CExoString *pTHIS, CExoString *ExoString) = (int (__thiscall*)(CExoString *pTHIS, CExoString *ExoString))0x0040CFB0;
 
