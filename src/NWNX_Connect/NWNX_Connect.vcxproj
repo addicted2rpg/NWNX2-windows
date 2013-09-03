@@ -72,6 +72,8 @@
       <PrecompiledHeaderOutputFile>
       </PrecompiledHeaderOutputFile>
       <AdditionalIncludeDirectories>$(SolutionDir)RockLib\CNss;$(SolutionDir)RockLib\nwn_internals;$(SolutionDir)RockLib\include;$(SolutionDir)RockLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <CompileAsManaged>false</CompileAsManaged>
+      <CallingConvention>StdCall</CallingConvention>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -83,6 +85,8 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>false</DataExecutionPrevention>
       <LargeAddressAware>false</LargeAddressAware>
+      <AssemblyDebug>false</AssemblyDebug>
+      <ImportLibrary>$(IntDir)nwnx_connect.lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

@@ -891,3 +891,5 @@ src/Intermediate/nwnx_connect/NWNXBase.obj
 src/Intermediate/nwnx_connect/NWNXConnect.obj
 src/Intermediate/nwnx_connect/vc100.pdb
 src/Intermediate/NWNX2/NWNX2.pch
+src/Intermediate/nwnx_connect/nwnx_connect.exp
+src/Intermediate/nwnx_connect/nwnx_connect.lib
