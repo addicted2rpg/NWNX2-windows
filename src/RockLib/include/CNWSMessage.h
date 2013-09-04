@@ -22,10 +22,17 @@ struct CNWSMessage_s {
 	int 		SendServerToPlayerGuiQuickbar_SetButton(CNWSPlayer*, uint8_t, int32_t);
 	int			SendServerToPlayerMessage(nwn_objid_t Receiver, uint8_t a2, uint8_t Channel, void *pMessagedata, nwn_objid_t Sender);
 	int			SendServerToPlayerPVP_Attitude_Change(int oidPlayer1, int oidPlayer2, int a4);
+//	Linux debugger: int			HandlePlayerToServerMessage(void *, unsigned char *, unsigned long)
+	// Shadooow's interpretation: CNWSMessage *pMessage, void *p1, unsigned long nPlayerID, char *pData, unsigned long nLen
+// IDA stack:
+// dword 0
+// 4-byte ptr to dword=170h
+// dword 3
+// ecx=this
+	int			HandlePlayerToServerMessage(uint32_t a1, void *p1, uint32_t a2);
 	void 		WriteGameObjUpdate_CharacterSheet(CNWSPlayer* player, uint32_t a3);
 	void		WriteGameObjUpdate_UpdateAppearance(CNWSObject*, CLastUpdateObject*, uint32_t);
-	void		WriteGameObjUpdate_UpdateObject(CNWSPlayer*, CNWSObject*, CLastUpdateObject*, uint32_t, uint32_t);
-	
+	void		WriteGameObjUpdate_UpdateObject(CNWSPlayer*, CNWSObject*, CLastUpdateObject*, uint32_t, uint32_t);	
 	int SendServerToPlayerArea_ClientArea(CNWSPlayer_s *Player, CNWSArea *Area, Vector Pos, Vector *Rot, int a8);
 	int SendServerToPlayerModule_Info(uint32_t PlayerID);
 	

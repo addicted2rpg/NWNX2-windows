@@ -20,31 +20,38 @@
 #define WIN32_LEAN_AND_MEAN	
 #include <Windows.h>
 #include "../NWNXdll/NWNXBase.h"
-//#include "nwn_internals.h"
-//#include "types.h"
+#include "nwn_internals.h"
+#include "types.h"
 
 #define OBJECT_INVALID 0x7F000000
 
 class CNWNXConnect : public CNWNXBase  
 {
 public:
+	// A proper constructor
+	CNWNXConnect();
+	~CNWNXConnect();
 
 	BOOL OnCreate(const char* LogDir);
 	char* OnRequest(char *gameObject, char* Request, char* Parameters);
-	unsigned long OnRequestObject (char *gameObject, char* Request);
+	//unsigned long OnRequestObject (char *gameObject, char* Request);
 	void WriteLogHeader();
 	BOOL OnRelease();
-	
+
+	void SendHakList(CNWSMessage *pMessage, int nPlayerID);
+
+
 	//nwns malloc routine
-	void * (__cdecl *nwnx_malloc)(size_t cb);
+	//void * (__cdecl *nwnx_malloc)(size_t cb);
 	//nwns free routine
-	void (__cdecl *nwnx_free)(void * cb);
+	//void (__cdecl *nwnx_free)(void * cb);
 
 
 protected:
 
 private:
-	
+
+
 };
 
 #endif
