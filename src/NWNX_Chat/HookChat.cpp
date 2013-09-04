@@ -22,7 +22,7 @@
 #include "HookChat.h"
 #include "..\NWNXdll\hook_funcs.h"
 #include "NWNXChat.h"
-#include "..\RockLib\include\CExoString.h"
+//#include "..\RockLib\include\CExoString.h"
 
 extern CNWNXChat chat;
 
@@ -35,8 +35,9 @@ dword pScriptThis = 0;
 char *pChatThis = 0;
 
 dword * (*pGetPCobj)();
+void *pChat;
 // .text:0043CA00 ; CNWSMessage::SendServerToPlayerChatMessage(unsigned char, unsigned long, CExoString, unsigned long, CExoString const &)
-int (*pChat)(unsigned char mode, unsigned long id, CExoString str, unsigned long to, CExoString const &p);
+//int (*pChat)(unsigned char mode, unsigned long id, CExoString str, unsigned long to, CExoString const &p);
 
 char scriptRun = 0;
 char *lastMsg;

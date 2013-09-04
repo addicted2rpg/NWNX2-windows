@@ -61,6 +61,8 @@ BOOL CNWNXChat::OnCreate (const char* LogDir)
     WriteLogHeader();
 	LoadConfiguration();
 	lastMsg = new char[maxMsgLen+13];
+	lastMsg[0] = 0;
+
 	return HookFunctions();
 }
 
@@ -142,7 +144,7 @@ int CNWNXChat::SendServerMessage(char *sMessage, int nRecipientID) {
 	return retval;
 }
 
-char *CNWNXChat::NWNXSendMessage(char* Parameters)
+char CNWNXChat::NWNXSendMessage(char* Parameters)
 {
 	int oSender, oRecipient, nResult;
 	DWORD nChannel;
@@ -154,14 +156,20 @@ char *CNWNXChat::NWNXSendMessage(char* Parameters)
 
 
 	sharedHeap = (HANDLE) *heapAddress;
-
     int nParamLen = strlen(Parameters);
+
+
     char *nLastDelimiter = strrchr(Parameters, '¬');
     if (!nLastDelimiter || (nLastDelimiter-Parameters)<0)
     {
-		if (m_LogLevel >= logAll)
-			Log("o nLastDelimiter error\n");
-		return "0";
+		if (m_LogLevel >= logAll) {
+			if(!nLastDelimiter) {
+				Log("o nLastDelimiter error: nLastDelimiter is NULL.\n");
+			} else {
+				Log("o nLastDelimiter error: nLastDelimiter - Parameters < 0\n");
+			}
+		}
+		return '0';
     }
 
 	int nMessageLen = nParamLen-(nLastDelimiter-Parameters)+1;
@@ -175,7 +183,7 @@ char *CNWNXChat::NWNXSendMessage(char* Parameters)
 			Log("o sscanf error\n");
 		//delete[] sMessage;
 		HeapFree(sharedHeap, NULL, sMessage);
-		return "0";
+		return '0';
     }
 	strncpy_s(sMessage, sizeof(char) * nMessageLen, nLastDelimiter+1, nMessageLen-1);
 //	if (m_LogLevel >= logAll) Log("o sMessage='%s', oID=%X, ", sMessage, oRecipient);
@@ -187,7 +195,7 @@ char *CNWNXChat::NWNXSendMessage(char* Parameters)
 			Log("o oRecipient is not a PC\n");
 		// delete[] sMessage;
 		HeapFree(sharedHeap, NULL, sMessage);
-		return "0";
+		return '0';
     }
 
     if(nChannel!=4 && nChannel!=20) {
@@ -221,8 +229,8 @@ char *CNWNXChat::NWNXSendMessage(char* Parameters)
 	if (m_LogLevel >= logAll)
 		Log("o Return value: %d\n", nResult); //return value for full message delivery acknowledgement
 
-	if(nResult) return "1";
-	else return "0";
+	if(nResult) return '1';
+	else return '0';
 }
 
 
@@ -268,9 +276,9 @@ char* CNWNXChat::OnRequest (char* gameObject, char* Request, char* Parameters)
 	}
 	else if (strncmp(Request, "SPEAK", 5) == 0)
 	{
-		char *sReturn = NWNXSendMessage(Parameters);
-		strncpy_s(Parameters, sizeof(char) * (strlen(Parameters) + 1), sReturn, strlen(Parameters));
-		//Parameters[strlen(sReturn)] = 0;
+		char sReturn = NWNXSendMessage(Parameters);
+		Parameters[0] = sReturn;
+		Parameters[1] = 0;
 		return NULL;
 	}	
 	else if(strncmp(Request, "GETCHATSCRIPT", 13) == 0) {
@@ -284,14 +292,9 @@ char* CNWNXChat::OnRequest (char* gameObject, char* Request, char* Parameters)
 	if (strncmp(Request, "TEXT", 4) == 0)
 	{
 		// Because of the spacer in NWScript, Parameters should be 1024 easily.
-		// strcpy_s(Parameters, 1024, lastMsg);
+		strcpy_s(Parameters, 1024, lastMsg);
+		return NULL;
 
-		unsigned int length = strlen(lastMsg);
-		//char *ret = (char *) malloc(length+1);
-		char *ret = (char *) HeapAlloc(GetProcessHeap(), 0, (length+1));
-		strncpy_s(ret, (length+1)*sizeof(char), lastMsg, length);
-		ret[length]=0;
-		return ret;
 	}
 	else if (strncmp(Request, "LOG", 3) == 0) {
 		Log("%s", Parameters);
@@ -310,6 +313,8 @@ char* CNWNXChat::OnRequest (char* gameObject, char* Request, char* Parameters)
 BOOL CNWNXChat::OnRelease ()
 {
 	Log ("o Shutdown.\n");
+	delete lastMsg;
+
 	// call base class function
 	return CNWNXBase::OnRelease();
 }

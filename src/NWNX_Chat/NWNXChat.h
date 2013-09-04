@@ -65,7 +65,7 @@ private:
 	int SendServerMessage(char *sMessage, int nRecipientID);
 	
 protected:
-	char *NWNXSendMessage(char* Parameters);
+	char NWNXSendMessage(char* Parameters);
 
 };
 
