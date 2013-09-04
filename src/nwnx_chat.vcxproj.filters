@@ -33,9 +33,6 @@
     <ClInclude Include="NWNXdll\NWNXBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RockLib\include\CExoString.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="NWNX_Chat\NWNXChat.rc">
@@ -59,12 +56,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="NWNXdll\NWNXBase.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="RockLib\nwn_internals\CExoString.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="RockLib\nwn_internals\CNWSMessage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

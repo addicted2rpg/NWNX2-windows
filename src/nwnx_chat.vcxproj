@@ -96,7 +96,6 @@
     <ClInclude Include="NWNX_Chat\HookChat.h" />
     <ClInclude Include="NWNX_Chat\NWNXChat.h" />
     <ClInclude Include="NWNX_Chat\resource.h" />
-    <ClInclude Include="RockLib\include\CExoString.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="NWNX_Chat\NWNXChat.rc" />
@@ -108,8 +107,6 @@
     <ClCompile Include="NWNX_Chat\Chat.cpp" />
     <ClCompile Include="NWNX_Chat\HookChat.cpp" />
     <ClCompile Include="NWNX_Chat\NWNXChat.cpp" />
-    <ClCompile Include="RockLib\nwn_internals\CExoString.cpp" />
-    <ClCompile Include="RockLib\nwn_internals\CNWSMessage.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
