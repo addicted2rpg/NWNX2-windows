@@ -1,13 +1,15 @@
 #include "NWNXConnect.h"
 
-CNWNXConnect Connect;
+
+CNWNXConnect nwnxConnect;
 
 
 
 
 extern "C" __declspec(dllexport) CNWNXBase* GetClassObject()
 {
-	return &Connect;
+
+	return &nwnxConnect;
 }
 
 BOOL APIENTRY DllMain (HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)

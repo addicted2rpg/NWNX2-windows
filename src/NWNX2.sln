@@ -15,7 +15,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Time", "time.vcxproj", "{DC
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NWNX_Chat", "NWNX_Chat.vcxproj", "{A71411E4-333A-401C-B273-AA29F66F90C8}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NWNX_Connect", "NWNX_Connect\NWNX_Connect.vcxproj", "{D0E31253-38FB-40C0-934D-4BB3539B5204}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NWNX_Connect", "NWNX_Connect.vcxproj", "{D0E31253-38FB-40C0-934D-4BB3539B5204}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

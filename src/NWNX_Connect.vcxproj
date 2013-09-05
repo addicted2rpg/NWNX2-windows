@@ -73,7 +73,7 @@
       </PrecompiledHeaderOutputFile>
       <AdditionalIncludeDirectories>$(SolutionDir)RockLib\CNss;$(SolutionDir)RockLib\nwn_internals;$(SolutionDir)RockLib\include;$(SolutionDir)RockLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAsManaged>false</CompileAsManaged>
-      <CallingConvention>StdCall</CallingConvention>
+      <CallingConvention>Cdecl</CallingConvention>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -84,38 +84,37 @@
       <ProfileGuidedDatabase>$(IntDir)nwnx_connect.pgd</ProfileGuidedDatabase>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>false</DataExecutionPrevention>
-      <LargeAddressAware>false</LargeAddressAware>
+      <LargeAddressAware>
+      </LargeAddressAware>
       <AssemblyDebug>false</AssemblyDebug>
       <ImportLibrary>$(IntDir)nwnx_connect.lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\NWNXdll\hook_funcs.cpp" />
-    <ClCompile Include="..\NWNXdll\IniFile.cpp" />
-    <ClCompile Include="..\NWNXdll\NWNXBase.cpp" />
-    <ClCompile Include="..\RockLib\nwn_internals\CExoString.cpp" />
-    <ClCompile Include="..\RockLib\nwn_internals\CNWMessage.cpp" />
-    <ClCompile Include="..\RockLib\nwn_internals\CNWSMessage.cpp" />
-    <ClCompile Include="..\RockLib\nwn_internals\CNWSModule.cpp" />
-    <ClCompile Include="..\RockLib\nwn_internals\CServerExoAppInternal.cpp" />
-    <ClCompile Include="..\RockLib\nwn_internals\nwn_internals.cpp" />
-    <ClCompile Include="Connect.cpp" />
-    <ClCompile Include="NWNXConnect.cpp" />
-    <ClCompile Include="nwnx_memory.cpp" />
+    <ClCompile Include="NWNXdll\hook_funcs.cpp" />
+    <ClCompile Include="NWNXdll\IniFile.cpp" />
+    <ClCompile Include="NWNXdll\NWNXBase.cpp" />
+    <ClCompile Include="RockLib\nwn_internals\CExoString.cpp" />
+    <ClCompile Include="RockLib\nwn_internals\CNWMessage.cpp" />
+    <ClCompile Include="RockLib\nwn_internals\CNWSMessage.cpp" />
+    <ClCompile Include="RockLib\nwn_internals\CNWSModule.cpp" />
+    <ClCompile Include="RockLib\nwn_internals\CServerExoAppInternal.cpp" />
+    <ClCompile Include="RockLib\nwn_internals\nwn_internals.cpp" />
+    <ClCompile Include="NWNX_Connect\Connect.cpp" />
+    <ClCompile Include="NWNX_Connect\NWNXConnect.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\NWNXdll\hook_funcs.h" />
-    <ClInclude Include="..\NWNXdll\IniFile.h" />
-    <ClInclude Include="..\NWNXdll\NWNXBase.h" />
-    <ClInclude Include="..\RockLib\include\CExoString.h" />
-    <ClInclude Include="..\RockLib\include\CNWMessage.h" />
-    <ClInclude Include="..\RockLib\include\CNWSMessage.h" />
-    <ClInclude Include="..\RockLib\include\CNWSModule.h" />
-    <ClInclude Include="..\RockLib\include\nwnx_funcs_const.h" />
-    <ClInclude Include="..\RockLib\include\nwn_internals.h" />
-    <ClInclude Include="..\RockLib\include\types.h" />
-    <ClInclude Include="NWNXConnect.h" />
-    <ClInclude Include="nwnx_memory.h" />
+    <ClInclude Include="NWNXdll\hook_funcs.h" />
+    <ClInclude Include="NWNXdll\IniFile.h" />
+    <ClInclude Include="NWNXdll\NWNXBase.h" />
+    <ClInclude Include="RockLib\include\CExoString.h" />
+    <ClInclude Include="RockLib\include\CNWMessage.h" />
+    <ClInclude Include="RockLib\include\CNWSMessage.h" />
+    <ClInclude Include="RockLib\include\CNWSModule.h" />
+    <ClInclude Include="RockLib\include\nwnx_funcs_const.h" />
+    <ClInclude Include="RockLib\include\nwn_internals.h" />
+    <ClInclude Include="RockLib\include\types.h" />
+    <ClInclude Include="NWNX_Connect\NWNXConnect.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

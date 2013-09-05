@@ -15,78 +15,72 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Connect.cpp">
+    <ClCompile Include="NWNXdll\NWNXBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="NWNXConnect.cpp">
+    <ClCompile Include="NWNX_Connect\NWNXConnect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="nwnx_memory.cpp">
+    <ClCompile Include="RockLib\nwn_internals\nwn_internals.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\RockLib\nwn_internals\CNWMessage.cpp">
+    <ClCompile Include="NWNXdll\IniFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\RockLib\nwn_internals\CNWSModule.cpp">
+    <ClCompile Include="NWNXdll\hook_funcs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\RockLib\nwn_internals\CExoString.cpp">
+    <ClCompile Include="RockLib\nwn_internals\CServerExoAppInternal.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\RockLib\nwn_internals\nwn_internals.cpp">
+    <ClCompile Include="NWNX_Connect\Connect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\NWNXdll\IniFile.cpp">
+    <ClCompile Include="RockLib\nwn_internals\CNWSModule.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\NWNXdll\NWNXBase.cpp">
+    <ClCompile Include="RockLib\nwn_internals\CNWSMessage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\RockLib\nwn_internals\CNWSMessage.cpp">
+    <ClCompile Include="RockLib\nwn_internals\CNWMessage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\RockLib\nwn_internals\CServerExoAppInternal.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\NWNXdll\hook_funcs.cpp">
+    <ClCompile Include="RockLib\nwn_internals\CExoString.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="NWNXConnect.h">
+    <ClInclude Include="NWNXdll\NWNXBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="nwnx_memory.h">
+    <ClInclude Include="RockLib\include\types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\RockLib\include\CNWMessage.h">
+    <ClInclude Include="NWNX_Connect\NWNXConnect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\RockLib\include\CNWSModule.h">
+    <ClInclude Include="RockLib\include\nwnx_funcs_const.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\RockLib\include\nwnx_funcs_const.h">
+    <ClInclude Include="RockLib\include\nwn_internals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\RockLib\include\CExoString.h">
+    <ClInclude Include="NWNXdll\IniFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\RockLib\include\nwn_internals.h">
+    <ClInclude Include="NWNXdll\hook_funcs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\RockLib\include\types.h">
+    <ClInclude Include="RockLib\include\CNWSModule.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\NWNXdll\IniFile.h">
+    <ClInclude Include="RockLib\include\CNWSMessage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\RockLib\include\CNWSMessage.h">
+    <ClInclude Include="RockLib\include\CNWMessage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\NWNXdll\NWNXBase.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\NWNXdll\hook_funcs.h">
+    <ClInclude Include="RockLib\include\CExoString.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
