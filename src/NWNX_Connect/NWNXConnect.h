@@ -17,11 +17,12 @@
 #if !defined(NWNXCONNECT_H_)
 #define NWNXCONNECT_H_
 #pragma once
-#define WIN32_LEAN_AND_MEAN	
+//#define WIN32_LEAN_AND_MEAN	
 #include <Windows.h>
-#include "../NWNXdll/NWNXBase.h"
-#include "nwn_internals.h"
-#include "types.h"
+#include "..\NWNXdll\NWNXBase.h"
+#include "..\Rocklib\include\types.h"
+#include "..\RockLib\include\nwn_internals.h"
+
 
 #define OBJECT_INVALID 0x7F000000
 
@@ -34,11 +35,12 @@ public:
 
 	BOOL OnCreate(const char* LogDir);
 	char* OnRequest(char *gameObject, char* Request, char* Parameters);
-	//unsigned long OnRequestObject (char *gameObject, char* Request);
+	unsigned long OnRequestObject (char *gameObject, char* Request);
 	void WriteLogHeader();
 	BOOL OnRelease();
 
 	void SendHakList(CNWSMessage *pMessage, int nPlayerID);
+	//void SendHakList(void *cnwsmessage, int nPlayerID);
 
 
 	//nwns malloc routine

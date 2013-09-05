@@ -544,7 +544,8 @@ void LoadLibraries()
 			}
 			else
 			{
-				fprintf(logFile, "* Error: can not find creation function in %s\n", findData.cFileName);
+				DWORD proc_error = GetLastError();
+				fprintf(logFile, "* Error (code %d): can not find creation function in %s\n", proc_error, findData.cFileName);
 			}
 		}
 		
@@ -766,13 +767,13 @@ DWORD WINAPI Init(LPVOID lpParam)
 	// needs these hooks.
 	if(listGame) {
 		if(!USE_HOST) {
-			if(!HookFunction(sendtoProc, (void **)&sendtoOriginal, sendto, WINDOWS_LIBRARY)) {
+			if(!HookFunction_Stdcall(sendtoProc, (void **)&sendtoOriginal, sendto)) {
 				fprintf(logFile, "sendto() hook failed, expect interruption in server registration services.\n");
 				fflush(logFile); 
 			}
 		}
 		else {
-			HookFunction(gethostbynameProc, (void **) &gethostbynameOriginal, gethostbyname, WINDOWS_LIBRARY);
+			HookFunction_Stdcall(gethostbynameProc, (void **) &gethostbynameOriginal, gethostbyname);
 		}
 	}
 	

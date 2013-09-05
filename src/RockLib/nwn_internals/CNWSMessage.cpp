@@ -31,7 +31,7 @@ int 		(__thiscall *CNWSMessage__SendServerToPlayerModule_Info)(CNWSMessage *pTHI
 
 signed int 	(__thiscall *CNWSMessage__SendServerToPlayerExamineGui_PlaceableData)(CNWSMessage *pTHIS, CNWSPlayer *Player, nwn_objid_t oID) = (signed int(__thiscall*)(CNWSMessage *pTHIS, CNWSPlayer *Player, nwn_objid_t oID))0x004474B0;
 int 		(__thiscall *CNWSMessage__WriteOBJECTIDServer)(CNWSMessage *pTHIS, nwn_objid_t oID) = (int (__thiscall*)(CNWSMessage *pTHIS, nwn_objid_t oID))0x00508CB0;
-int			(__thiscall *CNWSMessage__HandlePlayerToServerMessage)(CNWSMessage *pTHIS, uint32_t a1, void *p1, uint32_t a2) = (int (__thiscall*)(CNWSMessage *pTHIS, uint32_t a1, void *p1, uint32_t a2))0x5426A0;
+int			(__thiscall *CNWSMessage__HandlePlayerToServerMessage)(CNWSMessage *pTHIS, uint32_t a1, unsigned char *p1, uint32_t a2) = (int (__thiscall*)(CNWSMessage *pTHIS, uint32_t a1, unsigned char *p1, uint32_t a2))0x5426A0;
 
 
 nwn_objid_t CNWSMessage_s::ReadOBJECTIDServer() {
@@ -127,7 +127,7 @@ int CNWSMessage_s::SendServerToPlayerModule_Info(uint32_t PlayerID) {
 	return CNWSMessage__SendServerToPlayerModule_Info(this, PlayerID);
 }
 
-int CNWSMessage_s::HandlePlayerToServerMessage(uint32_t a1, void *p1, uint32_t a2) {
+int CNWSMessage_s::HandlePlayerToServerMessage(uint32_t a1, unsigned char *p1, uint32_t a2) {
 	return CNWSMessage__HandlePlayerToServerMessage(this, a1, p1, a2);
 }
 

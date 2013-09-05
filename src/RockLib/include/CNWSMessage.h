@@ -29,7 +29,7 @@ struct CNWSMessage_s {
 // 4-byte ptr to dword=170h
 // dword 3
 // ecx=this
-	int			HandlePlayerToServerMessage(uint32_t a1, void *p1, uint32_t a2);
+	int			HandlePlayerToServerMessage(uint32_t a1, unsigned char *p1, uint32_t a2);
 	void 		WriteGameObjUpdate_CharacterSheet(CNWSPlayer* player, uint32_t a3);
 	void		WriteGameObjUpdate_UpdateAppearance(CNWSObject*, CLastUpdateObject*, uint32_t);
 	void		WriteGameObjUpdate_UpdateObject(CNWSPlayer*, CNWSObject*, CLastUpdateObject*, uint32_t, uint32_t);	

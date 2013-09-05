@@ -12,8 +12,10 @@ int CreateGeneralBridge(void **BridgePointer, void *fn, unsigned char *fill, int
 // HookCode((PVOID) Location, SCOHookProc, (PVOID*) &OriginalSCO);
 // HookFunction(SCOHookProc, (PVOID*) &OriginalSCO, (PVOID) Location, 1);
 // So throw target/location to the end, with instruction alignment.
-
+int HookFunction_Stdcall(void *FilterFunction, void **BridgePointer, void *target_fn);
 int HookFunction(void *FilterFunction, void **BridgePointer, void *target_fn, int alignment);
+int HookFunction_General(void *FilterFunction, void **BridgePointer, void *target_fn, int alignment);
+
 
 // These are for debugging my own damn API, lol... :) 
 DWORD InterpretAddress(void *supposed_callback, int alignment);

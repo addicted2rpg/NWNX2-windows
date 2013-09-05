@@ -2,7 +2,7 @@
 #define _NX_NWN_STRUCT_CNWSMODULE_
 
 
-#define CNWSMODULE_VER_1
+//#define CNWSMODULE_VER_1
 
 #ifdef CNWSMODULE_VER_1
 struct CNWSModule_s { //: public CResHelper_s { //, public CGameObject {

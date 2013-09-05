@@ -182,7 +182,7 @@ int CreateGeneralBridge(void **BridgePointer, void *fn, unsigned char *fill, int
 //			  it is the first in madCHook's HookCode().
 // alignment = Increase the number of bytes copied to the trampoline and alter the return address on the 
 // trampoline accordingly to land correctly.  See its use in NWNXDll.cpp for comments on how this works.
-int HookFunction(void *FilterFunction, void **BridgePointer, void *target_fn, int alignment) {
+int HookFunction_General(void *FilterFunction, void **BridgePointer, void *target_fn, int alignment) {
 	unsigned char *previous;
 	unsigned char *targetFN_cast = (unsigned char *)target_fn;
 	// unsigned char unused[5];
@@ -220,6 +220,16 @@ int HookFunction(void *FilterFunction, void **BridgePointer, void *target_fn, in
 
 
 	return 1;
+}
+
+int HookFunction_Stdcall(void *FilterFunction, void **BridgePointer, void *target_fn) {
+
+	return HookFunction_General(FilterFunction, BridgePointer, target_fn, WINDOWS_LIBRARY);
+}
+
+int HookFunction(void *FilterFunction, void **BridgePointer, void *target_fn, int alignment) {
+
+	return HookFunction_General(FilterFunction, BridgePointer, target_fn, alignment);
 }
 
 

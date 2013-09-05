@@ -16,21 +16,54 @@
 
 
 #include "NWNXConnect.h"
-#include "../NWNXdll/IniFile.h"
-#include "../NWNXdll/hook_funcs.h"
-#include "types.h"
-#include "CNWSMessage.h"
-//#include "nwn_internals.h"
+//#include "..\NWNXdll\IniFile.h"
+#include "..\NWNXdll\hook_funcs.h"
 
 //extern int __stdcall CNWSMessage__HandlePlayerToServerMessageFilter(CNWSMessage *pMessage, void *, unsigned long nPlayerID, char *pData, unsigned long nLen);
 //extern int (__stdcall *CNWSMessage__HandlePlayerToServerMessageNext)(CNWSMessage *pMessage, void *, unsigned long nPlayerID, char *pData, unsigned long nLen);
-extern CNWNXConnect Connect;
-int __stdcall CNWSMessage__HandlePlayerToServerMessageFilter(CNWSMessage *pMessage, void *p1, unsigned long nPlayerID, char *pData, unsigned long nLen);
+extern CNWNXConnect nwnxConnect;
 void *CNWSMessage__HandlePlayerToServerMessageBridge = NULL;	
 
 
 
+
+
+
+//int __stdcall CNWSMessage__HandlePlayerToServerMessageFilter(CNWSMessage *pMessage, unsigned char *p1, unsigned long nPlayerID, char *pData, unsigned long nLen)
+void __fastcall CNWSMessage__HandlePlayerToServerMessageFilter(CNWSMessage *pMessage, DWORD c_edx, DWORD nPlayerID, BYTE *pData, DWORD nLen)
+{
+
+
+	nwnxConnect.Log(0, "Message: PID %d, type %x, subtype %x\n", nPlayerID, pData[1], pData[2]);
+
+
+	
+	if(pData[1] == 1)
+	{
+//		nwnxConnect.SendHakList(pMessage, nPlayerID);
+	}
+
+	
+	/*
+	(((int (__fastcall *)( CNWSMessage * , DWORD,  DWORD, BYTE *, DWORD)) 
+		CNWSMessage__HandlePlayerToServerMessageBridge)) 
+	   (pMessage, c_edx, nPlayerID, pData, nLen);
+	 */
+	_asm {
+		pop eax;
+		pop ebp;
+	}
+	(((int (__thiscall *)( void )) 
+		CNWSMessage__HandlePlayerToServerMessageBridge)) 
+	   ();
+	
+}
+
+
+
+
 CNWNXConnect::CNWNXConnect() {
+	
 }
 
 CNWNXConnect::~CNWNXConnect() {
@@ -58,10 +91,11 @@ BOOL CNWNXConnect::OnCreate(const char* LogDir)
 	WriteLogHeader();
 
 	// Doesn't use any parameters I know of.
-	// CIniFile iniFile ("nwnx.ini");
+	//CIniFile iniFile ("nwnx.ini");
 
 //	nRet = HookCode( (PVOID) 0x5426A0, CNWSMessage__HandlePlayerToServerMessage, (PVOID*) &CNWSMessage__HandlePlayerToServerMessageNext);
 	
+
 	nRet = HookFunction((void *) CNWSMessage__HandlePlayerToServerMessageFilter, 
 					    (void **) &CNWSMessage__HandlePlayerToServerMessageBridge, 
 						(void *)0x5426A0, 
@@ -74,6 +108,7 @@ BOOL CNWNXConnect::OnCreate(const char* LogDir)
 		fprintf(m_fFile, "X HandlePlayerToServerMessage() hook at 0x5426A0 failed!\n");
 	}
 
+
 	
 	fprintf(m_fFile, "\n" );
 	fflush(m_fFile);
@@ -82,15 +117,15 @@ BOOL CNWNXConnect::OnCreate(const char* LogDir)
 	return true;
 }
 
-/*
+
 unsigned long CNWNXConnect::OnRequestObject (char *gameObject, char* Request){
 
 	return OBJECT_INVALID;
 }
-*/
 
 
-char* CNWNXConnect::OnRequest(char *gameObject, char* Request, char* Parameters){
+
+char *CNWNXConnect::OnRequest(char *gameObject, char* Request, char* Parameters){
 
 	return NULL;
 }
@@ -100,10 +135,13 @@ void CNWNXConnect::WriteLogHeader()
 	fflush (m_fFile);
 }
 
+
 void CNWNXConnect::SendHakList(CNWSMessage *pMessage, int nPlayerID)
 {
+
 	unsigned char *pData;
 	long unsigned int nSize;
+
 
 	CNWSModule *pModule = (CNWSModule *) (*NWN_AppManager)->app_server->srv_internal->GetModule();
 	if(pModule)
@@ -125,27 +163,10 @@ void CNWNXConnect::SendHakList(CNWSMessage *pMessage, int nPlayerID)
 		message->GetWriteMessage((char **) &pData, (uint32_t *) &nSize);
 		pMessage->SendServerToPlayerMessage(nPlayerID, 100, 1, pData, nSize);
 	}
+
+	
 }
 
 
-int __stdcall CNWSMessage__HandlePlayerToServerMessageFilter(CNWSMessage *pMessage, void *p1, unsigned long nPlayerID, char *pData, unsigned long nLen)
-{
-	int nType = pData[1];
-	int nSubtype = pData[2];
-	int retval;
-
-	Connect.Log(0, "Message: PID %d, type %x, subtype %x\n", nPlayerID, nType, nSubtype);
-	if(nType == 1)
-	{
-		//Connect.SendHakList(pMessage, nPlayerID);
-	}
-
-
-	retval = (((int (__stdcall *)(CNWSMessage *, void *, unsigned long, char *, long))
-			  CNWSMessage__HandlePlayerToServerMessageBridge))
-			  (pMessage, p1, nPlayerID, pData, nLen);
-
-	return retval;
-}
 
 
