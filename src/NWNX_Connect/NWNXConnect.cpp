@@ -30,32 +30,60 @@ void *CNWSMessage__HandlePlayerToServerMessageBridge = NULL;
 
 
 //int __stdcall CNWSMessage__HandlePlayerToServerMessageFilter(CNWSMessage *pMessage, unsigned char *p1, unsigned long nPlayerID, char *pData, unsigned long nLen)
-void __fastcall CNWSMessage__HandlePlayerToServerMessageFilter(CNWSMessage *pMessage, DWORD c_edx, DWORD nPlayerID, BYTE *pData, DWORD nLen)
+void __declspec(naked) __fastcall CNWSMessage__HandlePlayerToServerMessageFilter(CNWSMessage *pMessage, DWORD c_edx, DWORD nPlayerID, BYTE *pData, DWORD nLen)
 {
 
+	__asm {
+		push eax;
+		push ebx;
+		push ecx;
+		push edx;
+		push esi;
+		push edi;
+		push ebp;
+		mov ebp, esp;
 
-	nwnxConnect.Log(0, "Message: PID %d, type %x, subtype %x\n", nPlayerID, pData[1], pData[2]);
+		
+	}
 
+	DWORD subType;
+	DWORD ptype;
+	DWORD ID;
+	CNWSMessage *message;
 
-	
-	if(pData[1] == 1)
+	__asm {
+		mov message, ecx;
+		mov eax, [esp+0xC];
+		mov ID, eax;
+		mov eax, [esp];
+		movsx ebx, byte ptr [eax+1];
+		movsx ecx, byte ptr[eax+2];
+
+		mov ptype, ebx;
+		mov subType, ecx;
+	}
+
+	nwnxConnect.Log(0, "Message: PID %d, type %x, subtype %x\n", ID, ptype, subType);
+
+	if(ptype == 1)
 	{
-//		nwnxConnect.SendHakList(pMessage, nPlayerID);
+		nwnxConnect.SendHakList(message, ID);
+	}
+	
+
+
+	_asm {
+		pop ebp;
+		pop edi;
+		pop esi;
+		pop edx;
+		pop ecx;
+		pop ebx;
+		pop eax;
+		call CNWSMessage__HandlePlayerToServerMessageBridge;
 	}
 
-	
-	/*
-	(((int (__fastcall *)( CNWSMessage * , DWORD,  DWORD, BYTE *, DWORD)) 
-		CNWSMessage__HandlePlayerToServerMessageBridge)) 
-	   (pMessage, c_edx, nPlayerID, pData, nLen);
-	 */
-	_asm {
-		pop eax;
-		pop ebp;
-	}
-	(((int (__thiscall *)( void )) 
-		CNWSMessage__HandlePlayerToServerMessageBridge)) 
-	   ();
+	// (((int (__thiscall *)( void ))  CNWSMessage__HandlePlayerToServerMessageBridge))  ();
 	
 }
 
@@ -147,11 +175,14 @@ void CNWNXConnect::SendHakList(CNWSMessage *pMessage, int nPlayerID)
 	if(pModule)
 	{
 		Log(0, "Sending hak list...\n");
-		CNWMessage *message = (CNWMessage*)pMessage;
+		CNWMessage *message = (CNWMessage*)pMessage;  // is this cast safe?  The data members are vastly different.
 	    message->CreateWriteMessage(80, -1, 1);
 		
+		Log(0, "Survived CreateWriteMessage()\n");
 
 		message->WriteINT(pModule->HakList.alloc, 32);
+
+		Log(0, "Survived WriteINT()\n");
 		
 		for(int i = pModule->HakList.alloc - 1; i >= 0; --i)
 		{
