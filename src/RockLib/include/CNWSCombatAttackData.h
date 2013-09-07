@@ -61,6 +61,13 @@
   CNWCCMessageData **Messages;
   int Messages_count;
   int Messages_alloc;
+  
+  CNWSCombatAttackData_s();
+  ~CNWSCombatAttackData_s();
+ 
+
+  int GetDamage(unsigned short i);
+  int GetTotalDamage(int i);
 };
 
 #endif
