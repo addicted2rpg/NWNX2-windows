@@ -32,6 +32,7 @@ int 		(__thiscall *CNWSMessage__SendServerToPlayerModule_Info)(CNWSMessage *pTHI
 signed int 	(__thiscall *CNWSMessage__SendServerToPlayerExamineGui_PlaceableData)(CNWSMessage *pTHIS, CNWSPlayer *Player, nwn_objid_t oID) = (signed int(__thiscall*)(CNWSMessage *pTHIS, CNWSPlayer *Player, nwn_objid_t oID))0x004474B0;
 int 		(__thiscall *CNWSMessage__WriteOBJECTIDServer)(CNWSMessage *pTHIS, nwn_objid_t oID) = (int (__thiscall*)(CNWSMessage *pTHIS, nwn_objid_t oID))0x00508CB0;
 int			(__thiscall *CNWSMessage__HandlePlayerToServerMessage)(CNWSMessage *pTHIS, uint32_t a1, unsigned char *p1, uint32_t a2) = (int (__thiscall*)(CNWSMessage *pTHIS, uint32_t a1, unsigned char *p1, uint32_t a2))0x5426A0;
+int			(__thiscall *CNWSMessage__SendServerToPlayerPolymorph)(CNWSMessage *pTHIS, CNWSPlayer *pThis, unsigned long l, int i, int i2) = (int(__thiscall*)(CNWSMessage *pTHIS, CNWSPlayer *pThis, unsigned long l, int i, int i2))0x004515B0;
 
 
 nwn_objid_t CNWSMessage_s::ReadOBJECTIDServer() {
@@ -137,4 +138,9 @@ signed int CNWSMessage_s::SendServerToPlayerExamineGui_PlaceableData(CNWSPlayer 
 
 int CNWSMessage_s::WriteOBJECTIDServer(nwn_objid_t oID) {
 	return CNWSMessage__WriteOBJECTIDServer(this, oID);
+}
+
+int CNWSMessage_s::SendServerToPlayerPolymorph(CNWSPlayer_s *pThis, unsigned long l, int i, int i2)
+{
+ return CNWSMessage__SendServerToPlayerPolymorph(this,pThis,l,i,i2);
 }
