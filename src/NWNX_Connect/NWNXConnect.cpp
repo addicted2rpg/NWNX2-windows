@@ -28,12 +28,19 @@ void *CNWSMessage__HandlePlayerToServerMessageBridge = NULL;
 
 
 
+#pragma optimize("gsty", off)
 
 //int __stdcall CNWSMessage__HandlePlayerToServerMessageFilter(CNWSMessage *pMessage, unsigned char *p1, unsigned long nPlayerID, char *pData, unsigned long nLen)
 void __declspec(naked) __fastcall CNWSMessage__HandlePlayerToServerMessageFilter(CNWSMessage *pMessage, DWORD c_edx, DWORD nPlayerID, BYTE *pData, DWORD nLen)
 {
+	DWORD subType; // ebp-16
+	DWORD ptype; // ebp-8
+	DWORD ID; // ebp-4
+	CNWSMessage *message;  // ebp-12
 
+	// The "do it yourself" version.
 	__asm {
+		// save the stack
 		push eax;
 		push ebx;
 		push ecx;
@@ -41,29 +48,26 @@ void __declspec(naked) __fastcall CNWSMessage__HandlePlayerToServerMessageFilter
 		push esi;
 		push edi;
 		push ebp;
-		mov ebp, esp;
+		mov ebp, esp;  // prolog
 
+		sub esp, 16;  // create space for local vars
 		
-	}
-
-	DWORD subType;
-	DWORD ptype;
-	DWORD ID;
-	CNWSMessage *message;
-
-	__asm {
+		// Get values into the local vars
 		mov message, ecx;
-		mov eax, [esp+0xC];
+		mov eax, [esp+28];
 		mov ID, eax;
-		mov eax, [esp];
+		mov eax, [ebp];
 		movsx ebx, byte ptr [eax+1];
 		movsx ecx, byte ptr[eax+2];
 
 		mov ptype, ebx;
 		mov subType, ecx;
+
 	}
 
-	nwnxConnect.Log(0, "Message: PID %d, type %x, subtype %x\n", ID, ptype, subType);
+	// Ok, now we can do whatever we like in C++
+
+	nwnxConnect.Log(0, "Message: PID %d, type %x, subtype %x, CNWSMessage %X\n", ID, ptype, subType, message);
 
 	if(ptype == 1)
 	{
@@ -72,7 +76,10 @@ void __declspec(naked) __fastcall CNWSMessage__HandlePlayerToServerMessageFilter
 	
 
 
+	// Remove the local C++ vars, restore the registers, and return control to the original.
 	_asm {
+		add esp, 16;
+
 		pop ebp;
 		pop edi;
 		pop esi;
@@ -80,14 +87,14 @@ void __declspec(naked) __fastcall CNWSMessage__HandlePlayerToServerMessageFilter
 		pop ecx;
 		pop ebx;
 		pop eax;
-		call CNWSMessage__HandlePlayerToServerMessageBridge;
+		call CNWSMessage__HandlePlayerToServerMessageBridge;  // a one-way ticket
 	}
 
 	// (((int (__thiscall *)( void ))  CNWSMessage__HandlePlayerToServerMessageBridge))  ();
 	
 }
 
-
+#pragma optimize("", on)
 
 
 CNWNXConnect::CNWNXConnect() {
@@ -174,7 +181,7 @@ void CNWNXConnect::SendHakList(CNWSMessage *pMessage, int nPlayerID)
 	CNWSModule *pModule = (CNWSModule *) (*NWN_AppManager)->app_server->srv_internal->GetModule();
 	if(pModule)
 	{
-		Log(0, "Sending hak list...\n");
+		Log(0, "Sending hak list...pMessage=%X and nPlayerID=%d\n", pMessage, nPlayerID);
 		CNWMessage *message = (CNWMessage*)pMessage;  // is this cast safe?  The data members are vastly different.
 	    message->CreateWriteMessage(80, -1, 1);
 		
