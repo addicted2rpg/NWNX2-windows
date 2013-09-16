@@ -23,13 +23,6 @@ struct CNWSMessage_s {
 	int			SendServerToPlayerMessage(nwn_objid_t Receiver, uint8_t a2, uint8_t Channel, void *pMessagedata, nwn_objid_t Sender);
 	int			SendServerToPlayerPVP_Attitude_Change(int oidPlayer1, int oidPlayer2, int a4);
 	int			SendServerToPlayerPolymorph(CNWSPlayer *pThis, unsigned long l, int i, int i2);	
-//	Linux debugger: int			HandlePlayerToServerMessage(void *, unsigned char *, unsigned long)
-	// Shadooow's interpretation: CNWSMessage *pMessage, void *p1, unsigned long nPlayerID, char *pData, unsigned long nLen
-// IDA stack:
-// dword 0
-// 4-byte ptr to dword=170h
-// dword 3
-// ecx=this
 	int			HandlePlayerToServerMessage(uint32_t a1, unsigned char *p1, uint32_t a2);
 	void 		WriteGameObjUpdate_CharacterSheet(CNWSPlayer* player, uint32_t a3);
 	void		WriteGameObjUpdate_UpdateAppearance(CNWSObject*, CLastUpdateObject*, uint32_t);

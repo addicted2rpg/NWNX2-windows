@@ -166,7 +166,7 @@ char *CNWNXConnect::OnRequest(char *gameObject, char* Request, char* Parameters)
 }
 void CNWNXConnect::WriteLogHeader()
 {
-	fprintf(m_fFile, "NWNX Connect v1.2 alpha created by Shadooow based on Virusman's linux original, updated by addicted2rpg\n\n");
+	fprintf(m_fFile, "NWNX Connect v1.2 created by Shadooow based on Virusman's linux original, updated by addicted2rpg\n\n");
 	fflush (m_fFile);
 }
 
@@ -176,30 +176,44 @@ void CNWNXConnect::SendHakList(CNWSMessage *pMessage, int nPlayerID)
 
 	unsigned char *pData;
 	long unsigned int nSize;
+	int32_t i;
+	CExoArrayList_string *haklist;
+	CNWMessage *message;
+	CNWSModule *pModule;
 
 
-	CNWSModule *pModule = (CNWSModule *) (*NWN_AppManager)->app_server->srv_internal->GetModule();
+	message = (CNWMessage*)(pMessage);  
+	pModule = (CNWSModule *) (*NWN_AppManager)->app_server->srv_internal->GetModule();
+
 	if(pModule)
 	{
+		haklist = &(pModule->HakList);
 		Log(0, "Sending hak list...pMessage=%X and nPlayerID=%d\n", pMessage, nPlayerID);
-		CNWMessage *message = (CNWMessage*)pMessage;  // is this cast safe?  The data members are vastly different.
 	    message->CreateWriteMessage(80, -1, 1);
-		
-		Log(0, "Survived CreateWriteMessage()\n");
+		message->WriteINT(haklist->alloc, 32);
 
-		message->WriteINT(pModule->HakList.alloc, 32);
 
-		Log(0, "Survived WriteINT()\n");
-		
-		for(int i = pModule->HakList.alloc - 1; i >= 0; --i)
-		{
-			message->WriteCExoString(pModule->HakList.data[i], 32);//TODO
-			Log(0, "%s\n", pModule->HakList.data[i].text);//TODO
+		for(i=0; i < haklist->len;i++) {
+			Log(0, "\t%s\n", haklist->data[i].text);			
+			message->WriteCExoString(haklist->data[i], 32);
 		}
+		
+
+		/*
+		for(i = haklist->alloc - 1; i >= 0; --i)
+		{
+			Log(0, "%s\n", haklist->data[i].text);
+			message->WriteCExoString(haklist->data[i], 32);
+		}
+		*/
+
+
 		message->WriteCExoString(pModule->m_sCustomTLK, 32);
 		Log(0, "%s\n", pModule->m_sCustomTLK.text);
 		message->GetWriteMessage((char **) &pData, (uint32_t *) &nSize);
 		pMessage->SendServerToPlayerMessage(nPlayerID, 100, 1, pData, nSize);
+
+
 	}
 
 	
