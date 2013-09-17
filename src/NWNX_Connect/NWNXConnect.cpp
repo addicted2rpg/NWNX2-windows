@@ -98,7 +98,7 @@ void __declspec(naked) __fastcall CNWSMessage__HandlePlayerToServerMessageFilter
 
 
 CNWNXConnect::CNWNXConnect() {
-	
+	heapAddress = (DWORD *)0x5EEFF00;  // nwserver keeps their heap's address at this address.
 }
 
 CNWNXConnect::~CNWNXConnect() {
@@ -166,7 +166,7 @@ char *CNWNXConnect::OnRequest(char *gameObject, char* Request, char* Parameters)
 }
 void CNWNXConnect::WriteLogHeader()
 {
-	fprintf(m_fFile, "NWNX Connect v1.2 created by Shadooow based on Virusman's linux original, updated by addicted2rpg\n\n");
+	fprintf(m_fFile, "NWNX Connect v1.21 created by Shadooow based on Virusman's linux original, updated by addicted2rpg\n\n");
 	fflush (m_fFile);
 }
 
@@ -180,22 +180,47 @@ void CNWNXConnect::SendHakList(CNWSMessage *pMessage, int nPlayerID)
 	CExoArrayList_string *haklist;
 	CNWMessage *message;
 	CNWSModule *pModule;
+	HANDLE sharedHeap;
+	void *writeexo = (void *)0x00508900;
 
-
+	char *txt;
+	unsigned int len;
+	
+	// Setup some important variables
+	sharedHeap = (HANDLE) *heapAddress;
 	message = (CNWMessage*)(pMessage);  
 	pModule = (CNWSModule *) (*NWN_AppManager)->app_server->srv_internal->GetModule();
 
 	if(pModule)
 	{
+		// The haklist is acquired in a little counter-intuitive way.  Sorry, thats just the way of it :)
 		haklist = &(pModule->HakList);
-		Log(0, "Sending hak list...pMessage=%X and nPlayerID=%d\n", pMessage, nPlayerID);
+
+		Log(0, "Sending hak list...pMessage=%X, nPlayerID=%d, sharedHeap=%X\n", pMessage, nPlayerID, sharedHeap);
 	    message->CreateWriteMessage(80, -1, 1);
 		message->WriteINT(haklist->alloc, 32);
 
 
 		for(i=0; i < haklist->len;i++) {
-			Log(0, "\t%s\n", haklist->data[i].text);			
-			message->WriteCExoString(haklist->data[i], 32);
+			Log(0, "\t%s\n", haklist->data[i].text);
+
+			// CExoString() class for whatever reason is giving me a ridiculously hard time.  Even CNWSModule 
+			// for all of its complexity gives me an easier time.  Going to deal with this the asm way.
+			txt = (char *)HeapAlloc(sharedHeap, NULL, haklist->data[i].len);
+			len = haklist->data[i].len;
+			strcpy_s(txt, len, haklist->data[i].text);
+			_asm {
+				push 0x20;
+				push len;
+				push txt;
+				mov ecx, message;
+				call writeexo;
+			}
+
+			// HeapFree() is called on txt by WriteCExoString, so no need to free it.
+			// At least in MY debugger it does :P  I would be very interested in hearing if this plugin 
+			// had memory leaks or cases in which the NWNServer internal HeapFree was *not* called.
+
 		}
 		
 
@@ -207,15 +232,25 @@ void CNWNXConnect::SendHakList(CNWSMessage *pMessage, int nPlayerID)
 		}
 		*/
 
-
-		message->WriteCExoString(pModule->m_sCustomTLK, 32);
 		Log(0, "%s\n", pModule->m_sCustomTLK.text);
+		// message->WriteCExoString(pModule->m_sCustomTLK, 32);
+		txt = (char *)HeapAlloc(sharedHeap, NULL, pModule->m_sCustomTLK.len);		
+		len = pModule->m_sCustomTLK.len;
+		strcpy_s(txt, len, pModule->m_sCustomTLK.text);
+		_asm {
+			push 0x20;
+			push len;
+			push txt;
+			mov ecx, message;
+			call writeexo;
+		}
+
+		// For whatever reason, this part seems a bit laggy?
 		message->GetWriteMessage((char **) &pData, (uint32_t *) &nSize);
 		pMessage->SendServerToPlayerMessage(nPlayerID, 100, 1, pData, nSize);
 
 
 	}
-
 	
 }
 

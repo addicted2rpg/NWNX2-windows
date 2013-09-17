@@ -52,7 +52,7 @@ public:
 protected:
 
 private:
-
+	DWORD *heapAddress;
 
 };
 
