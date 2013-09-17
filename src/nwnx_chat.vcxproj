@@ -73,6 +73,7 @@
       </PrecompiledHeaderOutputFile>
       <ProgramDataBaseFileName>$(IntDir)nwnx_chat.pdb</ProgramDataBaseFileName>
       <AdditionalIncludeDirectories>$(ProjectDir)RockLib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

@@ -74,6 +74,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)RockLib\CNss;$(SolutionDir)RockLib\nwn_internals;$(SolutionDir)RockLib\include;$(SolutionDir)RockLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAsManaged>false</CompileAsManaged>
       <CallingConvention>Cdecl</CallingConvention>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
