@@ -166,7 +166,7 @@ char *CNWNXConnect::OnRequest(char *gameObject, char* Request, char* Parameters)
 }
 void CNWNXConnect::WriteLogHeader()
 {
-	fprintf(m_fFile, "NWNX Connect v1.21 created by Shadooow based on Virusman's linux original, updated by addicted2rpg\n\n");
+	fprintf(m_fFile, "NWNX Connect v1.3 created by Shadooow and addicted2rpg, based on Virusman's linux original\n\n");
 	fflush (m_fFile);
 }
 
@@ -198,10 +198,10 @@ void CNWNXConnect::SendHakList(CNWSMessage *pMessage, int nPlayerID)
 
 		Log(0, "Sending hak list...pMessage=%X, nPlayerID=%d, sharedHeap=%X\n", pMessage, nPlayerID, sharedHeap);
 	    message->CreateWriteMessage(80, -1, 1);
-		message->WriteINT(haklist->alloc, 32);
+		message->WriteINT(haklist->len, 32);
 
 
-		for(i=0; i < haklist->len;i++) {
+		for(i=haklist->len-1; i > -1;i--) {
 			Log(0, "\t%s\n", haklist->data[i].text);
 
 			// CExoString() class for whatever reason is giving me a ridiculously hard time.  Even CNWSModule 
