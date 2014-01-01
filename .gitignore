@@ -894,3 +894,5 @@ src/Intermediate/NWNX2/NWNX2.pch
 src/Intermediate/nwnx_connect/nwnx_connect.exp
 src/Intermediate/nwnx_connect/nwnx_connect.lib
 src/Intermediate/nwnx_connect/NWNX_Connect.unsuccessfulbuild
+src/Intermediate/NWNX2/NWNX2.write.1.tlog
+src/Intermediate/NWNXDll/NWNXdll.write.1.tlog
