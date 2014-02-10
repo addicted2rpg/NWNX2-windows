@@ -1,0 +1,52 @@
+This really has no "official documentation" that is packaged with it that I could find beyond Virusman's original 2012 
+statements found in old-readme.txt which were released in one of his pre-versions of the plugin.  
+
+Here are some community resources that talk about it a little as well:
+
+
+From neverwinternights.info/nwnx2.htm:
+
+"When running on the server, any player connecting with NWNCX can select PW-specific options during character 
+creation (such as base classes, spells, and feats). The game client pre-loads the PW's haks.
+- Created by virusman, 2012."
+
+
+-------------------------------------------
+From my inbox on NWNX.org:
+
+From: 	ShaDoOoW
+To: 	addicted2rpg
+Posted: 	Sat Aug 24, 2013 6:36
+Subject: 	NWNX Connect 
+
+hi, I saw your recent posts with memory fixes and chat plugin
+
+could you look into the win versions of Connect that I did? It crashes on Win 7 and I am unable to fix it, 
+maybe its because the same issue as in chat? It randomly crashes after using CNWMessage__WriteCExoString when passes 
+not null string and I am really clueless how to fix it.
+
+Any help will be appreciated, thanks. Shadooow
+
+
+
+^^^ oh yeah, we learned the hard way CNWMessage__WriteCexoString is/was horribly broke  :)  (or at least on Win7).
+^^^ solution: used assembler ;-)  Whatever is wrong with it, it is non-obvious.
+------------------------------------------------
+
+
+In NWNCX thread on NWNX.org, 
+http://www.nwnx.org/phpBB2/viewtopic.php?t=1263&start=45
+
+virusman
+Joined: 30 Jan 2005
+Posts: 982
+Location: Russia
+Post Posted: Sun Apr 21, 2013 22:45    
+
+
+NWNCX allows you to use custom content (skills, feats, etc.) on character creation, but it does not unlock custom 
+base classes yet.
+_________________
+In Soviet Russia, NWN plays you!
+
+--------------------------------------------------
